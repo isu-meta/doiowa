@@ -72,7 +72,7 @@ Currently doiowa supports journals, conferences, report-papers, and disserations
 
 ### validate.bat 
 
-If validate.bat is in PATH, generate a validation report via CrossRef's API.
+If [validate.bat](batch/validate.bat) is in PATH, generate a validation report via CrossRef's API.
 
 ``` {.sourceCode .console}
 $ validate target_file.xml
