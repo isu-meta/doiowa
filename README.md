@@ -28,7 +28,7 @@ Complete [configuration.xml](infiles/configuration.xml)
 | institution          | registrant_acronym      |           | Acronym of registering institution                                                         | TRUE                               |
 | institution          | registrant_city         |           | City of registering institution                                                            | TRUE                               |
 | person               | depositor               |           | Name of person depositing metadata                                                         | TRUE                               |
-| person               | depostior_email         |           | Email address of person depositing metadata                                                | TRUE                               |
+| person               | depositor_email         |           | Email address of person depositing metadata                                                | TRUE                               |
 | uri                  | repository_url          |           | Base url of repository. e.g. https://lib.dr.iastate.edu/                                   | TRUE                               |
 | uri                  | doi_prefix              |           | CrossRef Assigned doi prefix. e.g. 10.31274                                                | TRUE                               |
 | collection           | collection_type         |           | Supported Options: journal, dissertation, report-paper, conference                         | TRUE                               |
