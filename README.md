@@ -48,7 +48,7 @@ Complete [configuration.xml](infiles/configuration.xml)
 ### Step 2. 
 Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls) with the target BePress batch revise file.
 
-### Step 3 (optonal). 
+### Step 3 (optional). 
 Add [validate.bat](batch/validate.bat]) to PATH. 
 
 ### Step 4. Run the code
