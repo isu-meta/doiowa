@@ -62,7 +62,7 @@ $ python harvester.py
 Upload to CrossRef 
 
 ``` {.sourceCode .console}
-$ python upload.py path/to/xml.xml filename 
+$ python upload.py path/to/file.xml filename 
 ```
 
 Supplemental Files
