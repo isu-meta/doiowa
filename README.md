@@ -51,13 +51,15 @@ Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_a
 ### Step 3 (optional). 
 Add [validate.bat](batch/validate.bat]) to PATH. 
 
-### Step 4. Run the code
+### Step 4. 
+Run the code
 
 ``` {.sourceCode .console}
 $ python harvester.py
 ```
 
-### Step 5. Upload to CrossRef 
+### Step 5. 
+Upload to CrossRef 
 
 ``` {.sourceCode .console}
 $ python upload.py path/to/xml.xml filename 
