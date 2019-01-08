@@ -68,7 +68,7 @@ Supplemental Files
 
 ### suppdata.xml
 
-Currently doiowa supports journals, conferences, report-papers, and disserations. Conferences require [suppdata.xml](transformations/suppdata) be stored in the transformations directory.  This file should include conference event metadata. 
+Currently doiowa supports journals, conferences, report-papers, and disserations. Conferences require [suppdata.xml](transformations/suppdata.xml) be stored in the transformations directory.  This file should include conference event metadata. 
 
 ### validate.bat 
 
