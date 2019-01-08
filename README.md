@@ -23,28 +23,22 @@ Complete [configuration.xml](infiles/configuration.xml)
 
 
 | Element | Child Element | Attribute | Description | Required |
-|----------------------|-------------------------|-----------|--------------------------------------------------------------------------------------------|------------------------------------|
-| doi_run |  | sequence | Doiowa can run multiple transformations, add the ordered number to the sequence attribute. | TRUE |
-| institution | registrant |  | Name of registering institution | TRUE |
-| institution | registrant_acronym |  | Acronym of registering institution | TRUE |
-| institution | registrant_city |  | City of registering institution | TRUE |
-| person | depositor |  | Name of person depositing metadata | TRUE |
-| person | depositor_email |  | Email address of person depositing metadata | TRUE |
-| uri | repository_url |  | Base url of repository. e.g. https://lib.dr.iastate.edu/ | TRUE |
-| uri | doi_prefix |  | CrossRef Assigned doi prefix. e.g. 10.31274 | TRUE |
-| collection | collection_type |  | Supported Options: journal, dissertation, report-paper, conference | TRUE |
-| collection | collection_abbreviation |  | BePress Repository abbreviation | TRUE |
-|  |  |  |  |  |
-|  |  |  | as searchable via oai-pmh e.g. farmprogressreports |  |
-| bepress_batch |  |  | batch_revise report from bepress. | TRUE |
-|  |  |  |  |  |
-|  |  |  | e.g. infiles/farmprogressreports_august.xls |  |
-| filter |  |  | oai-pmh formatted date filter e.g.from=2018-11-11&until=2018-12-12 | FALSE |
-| journal_abbreviation |  |  | Include if collection_type = journal | True for journals; Otherwise False |
-| issn |  |  | Include if collection_type = journal, otherwise issn | True for journals; Otherwise False |
-|  |  |  |  |  |
-|  |  |  | will be noissn. |  |
-| small |  |  | True if oai-pmh harvest < 100 records | TRUE |
+|----------------------|-------------------------|-----------|------------------------------------------------------------------------|------------------------------------|
+| doi_run |  | sequence | numbered order for multiple transformations | TRUE |
+| institution | registrant |  | name of registering institution | TRUE |
+| institution | registrant_acronym |  | acronym of registering institution | TRUE |
+| institution | registrant_city |  | city of registering institution | TRUE |
+| person | depositor |  | name of person depositing metadata | TRUE |
+| person | depositor_email |  | email address of person depositing metadata | TRUE |
+| uri | repository_url |  | base url of repository. e.g. https://lib.dr.iastate.edu/ | TRUE |
+| uri | doi_prefix |  | doi prefix. e.g. 10.31274 | TRUE |
+| collection | collection_type |  | choose journal, dissertation, report-paper, or conference | TRUE |
+| collection | collection_abbreviation |  | bepress collection abbreviation as found via oai-pmh | TRUE |
+| bepress_batch |  |  | batch_revise xls report from bepress | TRUE |
+| filter |  |  | oai-pmh formatted date filter e.g.from=2018-11-11&amp;until=2018-12-12 | FALSE |
+| journal_abbreviation |  |  | title abbreviation for journals | True for journals; Otherwise False |
+| issn |  |  | issn for journals | True for journals; Otherwise False |
+| small |  |  | make True if oai-pmh harvest < 100 records | TRUE |
 
 
 ### Step 2. 
