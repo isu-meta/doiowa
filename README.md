@@ -17,7 +17,9 @@ $ activate doi_env
 $ pip install -r requirements.txt
 ```
 
-### Step 1. Complete [configuration.xml](infiles/configuration.xml)
+### Step 1. 
+
+Complete [configuration.xml](infiles/configuration.xml)
 
 | Element              | Child Element           | Attribute | Description                                                                                | Required                           |
 |----------------------|-------------------------|-----------|--------------------------------------------------------------------------------------------|------------------------------------|
@@ -43,9 +45,11 @@ $ pip install -r requirements.txt
 |                      |                         |           | will be noissn.                                                                            |                                    |
 | small                |                         |           | True if oai-pmh harvest < 100 records                                                      | TRUE                               |
 
-### Step 2. Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls) with the target BePress batch revise file.
+### Step 2. 
+Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls) with the target BePress batch revise file.
 
-### Step 3 (optonal). Add [validate.bat](batch/validate.bat]) to PATH. 
+### Step 3 (optonal). 
+Add [validate.bat](batch/validate.bat]) to PATH. 
 
 ### Step 4. Run the code
 
