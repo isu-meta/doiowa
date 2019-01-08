@@ -33,7 +33,6 @@ Complete [configuration.xml](infiles/configuration.xml)
 | uri                  | doi_prefix              |           | CrossRef Assigned doi prefix. e.g. 10.31274                                                | TRUE                               |
 | collection           | collection_type         |           | Supported Options: journal, dissertation, report-paper, conference                         | TRUE                               |
 | collection           | collection_abbreviation |           | BePress Repository abbreviation                                                            | TRUE                               |
-|                      |                         |           |                                                                                            |                                    |
 |                      |                         |           | as searchable via oai-pmh e.g. farmprogressreports                                         |                                    |
 | bepress_batch        |                         |           | batch_revise report from bepress.                                                          | TRUE                               |
 |                      |                         |           |                                                                                            |                                    |
