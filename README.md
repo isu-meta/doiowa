@@ -62,3 +62,20 @@ $ python harvester.py
 ``` {.sourceCode .console}
 $ python upload.py path/to/xml.xml filename 
 ```
+
+Supplemental Files
+-------------------
+
+### suppdata.xml
+
+Currently doiowa supports journals, conferences, report-papers, and disserations. Conferences require [suppdata.xml](transformations/suppdata) be stored in the transformations directory.  This file should include conference event metadata. 
+
+### validate.bat 
+
+If validate.bat is in PATH, generate a validation report via CrossRef's API.
+
+``` {.sourceCode .console}
+$ validate target_file.xml
+```
+
+
