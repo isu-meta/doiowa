@@ -195,8 +195,11 @@ def typesplit(infile, outfile, type=None):
 
 # in code xlst 1.0 scripts
     
-def xslt4(elems):
-    '''Converts select crossref xml elements to an html table'''
+def convert_elems_to_html_table(elems):
+    '''
+    Previously called xslt4.
+    Converts select crossref xml elements to an html table.
+    '''
     if elems == 'conference':
         elems = 'conference_paper'
     elif elems == 'journal':
@@ -246,9 +249,11 @@ def xslt4(elems):
     return xslt_root
 
 
-# xslt to remove crossref elements with a certain context_key
-def xslt5(elem, keyvalues):
-    '''removes a desired element that contains a certain context_key'''
+def remove_elem_by_keys(elem, keyvalues):
+    '''
+    Previously called xslt5.
+    Removes a desired element that contains a certain context_key
+    '''
     xslt_root = etree.XML('''\
     <xsl:stylesheet version="1.0"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -269,10 +274,11 @@ def xslt5(elem, keyvalues):
     return xslt_root
     
 
-def xslt6(elem, split_type=None):
+def split_large_xml_file(elem, split_type=None):
     '''
-        If the resulting XML file becomes too large for crossref, 
-        this xslt script will split one file into two.
+    Previously called xslt6.
+    If the resulting XML file becomes too large for crossref, 
+    this xslt script will split one file into two.
     '''
     if split_type == 'odd':
         x = '!='

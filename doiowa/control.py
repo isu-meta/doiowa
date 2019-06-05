@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 __author__ = "Ryan Wolfslayer, Iowa State University"
 
-# Assigns variables to transformations, serves as intermediary for oaiowa variabls, and executes merge and crosswalk
+# Assigns variables to transformations, serves as intermediary for oaiowa variables, and executes merge and crosswalk
 
 import os
 
-from doiowa.oaiowa import *
+from doiowa.oaiowa import conference_tags, createdir, crosswalk, merge, OAIXML, remtag, typesplit
 from doiowa.citationFinder import citefind
 
 curr_dir = os.getcwd()
@@ -54,9 +54,6 @@ class Variable(object):
             +--------------------+------------+----------------------------------------------------+
             | registrant_acronym | string     | Acronym of the registering institution             |
             +--------------------+------------+----------------------------------------------------+
-
-
-
 
         '''
 

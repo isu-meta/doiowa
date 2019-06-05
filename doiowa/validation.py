@@ -4,12 +4,12 @@
 import os
 import time
 
-import pandas as pd
-import requests
-from doiowa.oaiowa import createdir, xslt4, xslt5, xslt6
 from lxml import etree, html
 from lxml.etree import parse
+import pandas as pd
+import requests
 
+from doiowa.oaiowa import createdir, convert_elems_to_html_table, remove_elem_by_keys, split_large_xml_file
 
 class Validation():
     # class requires bepress batch_revise spreadsheet
@@ -28,7 +28,7 @@ class Validation():
         duplicate_report.append(dups)
 
         # crossref uses elements like <crossref:dissertation>, elem will most often be the collection type
-        transform = etree.XSLT(xslt4(elems=self.element))
+        transform = etree.XSLT(convert_elems_to_html_table(elems=self.element))
         ht = pd.read_html(str(transform(self.root)), header=0)[0]
         dups_ht = ht[ht[['title', 'author']].duplicated(keep='first') == True].reset_index().sort_values('title')
         dups_ht['location'] = 'CrossRef XML'
@@ -57,7 +57,7 @@ class Validation():
             # removes the first instance of a duplicate, and may not catch items duplicated more than once
             kvalues = ' or '.join(["crossref:publisher_item/crossref:item_number/text() = '{}'".format(x) for x in
                                    dups_ht['context_key'].values.tolist()])
-            transform_dup = etree.XSLT(xslt5(elem=self.element, keyvalues=kvalues))
+            transform_dup = etree.XSLT(remove_elem_by_keys(elem=self.element, keyvalues=kvalues))
             self.root = transform_dup(self.root)
             ht = ht[~ht['context_key'].isin(dups_ht['context_key'].values.tolist())]
 
@@ -74,8 +74,8 @@ class Validation():
             pass
 
     def reduce_xml(self, batchsize=5000, cdir=True):
-        transform_even = etree.XSLT(xslt6(split_type='even', elem=self.element))
-        transform_odd = etree.XSLT(xslt6(split_type='odd', elem=self.element))
+        transform_even = etree.XSLT(split_large_xml_file(split_type='even', elem=self.element))
+        transform_odd = etree.XSLT(split_large_xml_file(split_type='odd', elem=self.element))
         roots = [self.root]
 
         while int(roots[-1:][0].xpath('count(//foo:{})'.format(self.element),
