@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
-__author__ = 'Ryan Wolfslayer, Iowa State University'
+__author__ = "Ryan Wolfslayer, Iowa State University"
 
 # Program to assist with collecting variables for harvesting OAI
 # produces first 100 results and returns tokens for remaining results
 # includes additional functions and xslt scripts used throughout the DOIowa project
-    
+
 import glob
 import math
 import os
@@ -44,111 +44,163 @@ class OAIXML(object):
         
         
     """
-    def __init__(self, domain=None, verb='ListRecords', prefix='document-export', set=None, filter=False,
-                 fullquery=None):
+
+    def __init__(
+        self,
+        domain=None,
+        verb="ListRecords",
+        prefix="document-export",
+        set=None,
+        filter=False,
+        fullquery=None,
+    ):
         self.domain = domain
         self.verb = verb
         self.prefix = prefix
         self.filter = filter
         self.set = set
 
-        if domain.startswith('http'):
+        if domain.startswith("http"):
             self.domain = domain
         else:
-            self.domain = 'https://{}'.format(domain)
-        if self.domain.endswith('/'):
+            self.domain = "https://{}".format(domain)
+        if self.domain.endswith("/"):
             pass
         else:
-            self.domain = domain + '/'
+            self.domain = domain + "/"
 
         # initial query
         if fullquery:
             self.query = fullquery
         elif filter == False:
-            self.query = '{}do/oai/?verb={}&metadataPrefix={}&set={}'.format(self.domain, self.verb,
-                                                                             self.prefix, self.set)
+            self.query = "{}do/oai/?verb={}&metadataPrefix={}&set={}".format(
+                self.domain, self.verb, self.prefix, self.set
+            )
         else:
-            self.query = '{}do/oai/?verb={}&metadataPrefix={}&set={}&{}'.format(self.domain, self.verb,
-                                                                                self.prefix, self.set,
-                                                                                self.filter)
+            self.query = "{}do/oai/?verb={}&metadataPrefix={}&set={}&{}".format(
+                self.domain, self.verb, self.prefix, self.set, self.filter
+            )
         print(self.query)
         self.initdoc = etree.parse(urlopen(self.query), parser)
         try:
-            self.count = int(math.ceil(int(self.initdoc.xpath('//@completeListSize')[0]) / 100))
-            self.token = \
-            self.initdoc.xpath('//foo:resumptionToken/text()', namespaces={"foo": "http://www.openarchives.org/OAI/2.0/"})[
-                0]
+            self.count = int(
+                math.ceil(int(self.initdoc.xpath("//@completeListSize")[0]) / 100)
+            )
+            self.token = self.initdoc.xpath(
+                "//foo:resumptionToken/text()",
+                namespaces={"foo": "http://www.openarchives.org/OAI/2.0/"},
+            )[0]
         except IndexError:
-            self.count=0
-            self.token=None
+            self.count = 0
+            self.token = None
 
         if self.count > 1:
-            tokenstring = '/{}/'.join(self.token.split('/100/'))
+            tokenstring = "/{}/".join(self.token.split("/100/"))
 
-            self.oai_urls = list(tokenstring.format(n * 100) for n in range(1, self.count))
+            self.oai_urls = list(
+                tokenstring.format(n * 100) for n in range(1, self.count)
+            )
         else:
             self.oai_urls = None
 
         try:
             dire = str(self.set)
         except Exception:
-            dire = str('default')
+            dire = str("default")
 
-        createdir('outfiles/directharvest')
-        initfile = 'outfiles/directharvest/01_initialFile.xml'
-        self.initdoc.write(initfile, pretty_print=True, xml_declaration=True, encoding='utf-8')
+        createdir("outfiles/directharvest")
+        initfile = "outfiles/directharvest/01_initialFile.xml"
+        self.initdoc.write(
+            initfile, pretty_print=True, xml_declaration=True, encoding="utf-8"
+        )
 
-    
     def returnvar(self):
         return [self.domain, self.verb, self.oai_urls]
 
 
 # assorted functions, requires java be in PATH
 
+
 def createdir(name):
     from time import gmtime, strftime
+
     # create directory
-    direc = os.getcwd() + '/' + name.replace(':', '_')
-    current_time = str(strftime("%Y-%m-%d %H:%M:%S", gmtime())).replace(':', '_').replace(' ', '_')
+    direc = os.getcwd() + "/" + name.replace(":", "_")
+    current_time = (
+        str(strftime("%Y-%m-%d %H:%M:%S", gmtime())).replace(":", "_").replace(" ", "_")
+    )
     try:
         os.mkdir(direc)
     except Exception:
-        os.mkdir(direc + '/' + str(current_time))
-        [shutil.move(file, direc + '/' + str(current_time)) for file in glob.glob(direc + '/' + '*.xml')]
-        [shutil.move(file, direc + '/' + str(current_time)) for file in glob.glob(direc + '/' + '*.csv')]    
+        os.mkdir(direc + "/" + str(current_time))
+        [
+            shutil.move(file, direc + "/" + str(current_time))
+            for file in glob.glob(direc + "/" + "*.xml")
+        ]
+        [
+            shutil.move(file, direc + "/" + str(current_time))
+            for file in glob.glob(direc + "/" + "*.csv")
+        ]
 
 
 def crosswalk(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                     "-o:{}/{}".format(current_path, outfile),
-                     "-s:{}/{}".format(current_path, infile),
-                     "{}/transformations/iacrossref-v12.xsl".format(current_path)
-                     ], shell=True)
+    subprocess.call(
+        [
+            "java",
+            "-jar",
+            "{}/transformations/saxon9.jar".format(current_path),
+            "-o:{}/{}".format(current_path, outfile),
+            "-s:{}/{}".format(current_path, infile),
+            "{}/transformations/iacrossref-v12.xsl".format(current_path),
+        ],
+        shell=True,
+    )
+
 
 def remtag(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                     "-o:{}/{}".format(current_path, outfile),
-                     "-s:{}/{}".format(current_path, infile),
-                     "{}/transformations/removetag.xsl".format(current_path)
-                     ], shell=True)
+    subprocess.call(
+        [
+            "java",
+            "-jar",
+            "{}/transformations/saxon9.jar".format(current_path),
+            "-o:{}/{}".format(current_path, outfile),
+            "-s:{}/{}".format(current_path, infile),
+            "{}/transformations/removetag.xsl".format(current_path),
+        ],
+        shell=True,
+    )
+
 
 def conference_tags(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                     "-o:{}/{}".format(current_path, outfile),
-                     "-s:{}/{}".format(current_path, infile),
-                     "{}/transformations/c_tags.xsl".format(current_path)
-                     ], shell=True)
-             
-def merge(root=True, filename='default.xml'):
+    subprocess.call(
+        [
+            "java",
+            "-jar",
+            "{}/transformations/saxon9.jar".format(current_path),
+            "-o:{}/{}".format(current_path, outfile),
+            "-s:{}/{}".format(current_path, infile),
+            "{}/transformations/c_tags.xsl".format(current_path),
+        ],
+        shell=True,
+    )
+
+
+def merge(root=True, filename="default.xml"):
     current_path = os.getcwd()
-    subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                     "-o:{}".format(filename),
-                     "-s:{}/outfiles/directharvest/01_initialFile.xml".format(current_path),
-                     "{}/transformations/merge.xsl".format(current_path)
-                     ], shell=True)
+    subprocess.call(
+        [
+            "java",
+            "-jar",
+            "{}/transformations/saxon9.jar".format(current_path),
+            "-o:{}".format(filename),
+            "-s:{}/outfiles/directharvest/01_initialFile.xml".format(current_path),
+            "{}/transformations/merge.xsl".format(current_path),
+        ],
+        shell=True,
+    )
     if root == True:
         roottag(filename)
     else:
@@ -157,11 +209,17 @@ def merge(root=True, filename='default.xml'):
 
 def nodups(filename):
     current_path = os.getcwd()
-    subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                     "-o:{}".format(filename.replace('.xml', '_dedup.xml')),
-                     "-s:{}".format(filename),
-                     "{}/transformations/merge.xsl".format(current_path)
-                     ], shell=True)
+    subprocess.call(
+        [
+            "java",
+            "-jar",
+            "{}/transformations/saxon9.jar".format(current_path),
+            "-o:{}".format(filename.replace(".xml", "_dedup.xml")),
+            "-s:{}".format(filename),
+            "{}/transformations/merge.xsl".format(current_path),
+        ],
+        shell=True,
+    )
 
 
 def roottag(file):
@@ -169,46 +227,62 @@ def roottag(file):
     root = tree.getroot()
     # BePress uses a 'documents' root, so it makes sense to write this into the code.
     # If you need to change the rootname do so here.
-    newroot = etree.Element('documents')
+    newroot = etree.Element("documents")
     newroot.insert(0, root)
-    tree = (etree.ElementTree(tree.getroot()))
-    tree.write(file, xml_declaration=True, encoding='utf-8', method='xml')
+    tree = etree.ElementTree(tree.getroot())
+    tree.write(file, xml_declaration=True, encoding="utf-8", method="xml")
 
 
 def typesplit(infile, outfile, type=None):
     current_path = os.getcwd()
 
     if type == "rtd":
-        subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                         "-o:{}".format(outfile),
-                         "-s:{}".format(infile), "{}/transformations/rtd_split.xsl".format(current_path)
-                         ], shell=True)
+        subprocess.call(
+            [
+                "java",
+                "-jar",
+                "{}/transformations/saxon9.jar".format(current_path),
+                "-o:{}".format(outfile),
+                "-s:{}".format(infile),
+                "{}/transformations/rtd_split.xsl".format(current_path),
+            ],
+            shell=True,
+        )
     elif type == "etd":
-        subprocess.call(["java", "-jar", "{}/transformations/saxon9.jar".format(current_path),
-                         "-o:{}".format(outfile),
-                         "-s:{}".format(infile), "{}/transformations/etds_split.xsl".format(current_path)
-                         ], shell=True)
+        subprocess.call(
+            [
+                "java",
+                "-jar",
+                "{}/transformations/saxon9.jar".format(current_path),
+                "-o:{}".format(outfile),
+                "-s:{}".format(infile),
+                "{}/transformations/etds_split.xsl".format(current_path),
+            ],
+            shell=True,
+        )
 
     else:
         print("No transformation occurred, please enter type=etd or type=rtd")
 
 
 # in code xlst 1.0 scripts
-    
+
+
 def convert_elems_to_html_table(elems):
-    '''
+    """
     Previously called xslt4.
     Converts select crossref xml elements to an html table.
-    '''
-    if elems == 'conference':
-        elems = 'conference_paper'
-    elif elems == 'journal':
-        elems = 'journal_article'
-    elif elems == 'report-paper':
-        elems = 'report-paper/crossref:report-paper_metadata'
+    """
+    if elems == "conference":
+        elems = "conference_paper"
+    elif elems == "journal":
+        elems = "journal_article"
+    elif elems == "report-paper":
+        elems = "report-paper/crossref:report-paper_metadata"
     else:
         pass
-    xslt_root = etree.XML('''\
+    xslt_root = etree.XML(
+        """\
     <xsl:stylesheet version="1.0"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         xmlns:crossref="http://www.crossref.org/schema/4.3.7"
@@ -244,17 +318,21 @@ def convert_elems_to_html_table(elems):
                 </td>
             </tr>
         </xsl:template>
-    </xsl:stylesheet>'''.format(elems, elems))
+    </xsl:stylesheet>""".format(
+            elems, elems
+        )
+    )
 
     return xslt_root
 
 
 def remove_elem_by_keys(elem, keyvalues):
-    '''
+    """
     Previously called xslt5.
     Removes a desired element that contains a certain context_key
-    '''
-    xslt_root = etree.XML('''\
+    """
+    xslt_root = etree.XML(
+        """\
     <xsl:stylesheet version="1.0"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         xmlns:crossref="http://www.crossref.org/schema/4.3.7">
@@ -269,22 +347,26 @@ def remove_elem_by_keys(elem, keyvalues):
             <xsl:value-of select="normalize-space(.)" />
         </xsl:template>
     </xsl:stylesheet>
-    '''.format(elem, keyvalues))
+    """.format(
+            elem, keyvalues
+        )
+    )
 
     return xslt_root
-    
+
 
 def split_large_xml_file(elem, split_type=None):
-    '''
+    """
     Previously called xslt6.
     If the resulting XML file becomes too large for crossref, 
     this xslt script will split one file into two.
-    '''
-    if split_type == 'odd':
-        x = '!='
+    """
+    if split_type == "odd":
+        x = "!="
     else:
-        x = '='
-    xslt_root = etree.XML('''\
+        x = "="
+    xslt_root = etree.XML(
+        """\
         <xsl:stylesheet version="1.0"
         xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
         xmlns:crossref="http://www.crossref.org/schema/4.3.7">
@@ -314,7 +396,8 @@ def split_large_xml_file(elem, split_type=None):
         <xsl:template match="text()" priority="2">
             <xsl:value-of select="normalize-space(.)" />
         </xsl:template>
-        </xsl:stylesheet>'''.format(elem, x))
+        </xsl:stylesheet>""".format(
+            elem, x
+        )
+    )
     return xslt_root
-
-        
