@@ -76,14 +76,14 @@ def citefind(file=None, outfile='citationsfound.xml', ns='crossref'):
         print(len(zfind), url)
         if len(zfind) > 0:
             dois = [y.replace('\\n', '').replace(' ', '').replace('doi:', '').strip('.') for y in zfind]
-            dfli = []
+            df_list = []
             works = Works()
             for item in dois:
                 d = works.doi(item)
                 df = pd.Series(d).to_frame()
-                dfli.append(df.transpose())
+                df_list.append(df.transpose())
 
-            cr = pd.concat(dfli)
+            cr = pd.concat(df_list)
             cr = cr.reset_index(drop=True)
             cr['year'] = cr.created.apply(lambda x: getyear(x))
             cr['journaltitle'] = cr['container-title'].apply(lambda x: gettitle(x))
