@@ -4,12 +4,17 @@ import datetime
 from lxml import etree
 from lxml.builder import E
 
+
 def add_dois_to_md_objects(prefix, collection, md_objects):
     for n, md in enumerate(md_objects):
         md.generate_doi(prefix, collection, n)
 
 
-Depositor = namedtuple("Depositor", ("doi_batch_id", "timestamp", "depositor_name", "email_address", "registrant"))
+Depositor = namedtuple(
+    "Depositor",
+    ("doi_batch_id", "timestamp", "depositor_name", "email_address", "registrant"),
+)
+
 
 class BaseMetadata:
     def __init__(
@@ -34,9 +39,9 @@ class BaseMetadata:
         self.contributors = contributors
         self.title = title
         self.edition_number = edition_number
-        self.month = month,
-        self.day = day,
-        self.year = year,
+        self.month = month
+        self.day = day
+        self.year = year
         self.publisher_name = publisher_name
         self.publisher_place = publisher_place
         self.institution_name = institution_name
@@ -71,7 +76,9 @@ class BaseMetadata:
 
     def to_xml(self):
         if self.type == "report":
-            root = etree.fromstring("<report-paper><report-paper_metadata language=\"en\"></report-paper_metadata></report-paper>")
+            root = etree.fromstring(
+                '<report-paper><report-paper_metadata language="en"></report-paper_metadata></report-paper>'
+            )
 
         root.append(self._xml_contributors())
         root.append(self._xml_title())
@@ -96,47 +103,44 @@ class BaseMetadata:
                 )
             except KeyError:
                 c_xml = E.institution_name(
-                    c["institution_name"],
-                    contributor_role="author"
+                    c["institution_name"], contributor_role="author"
                 )
 
             contributors.append(c_xml)
 
         return contributors
 
-    def _xml_title(self):       
-        title = E.titles(
-            E.title(self.title)
-        )
+    def _xml_title(self):
+        title = E.titles(E.title(self.title))
 
         return title
-    
+
     def _xml_edition_number(self):
         edition_number = E.edition_number(str(self.edition_number))
         return edition_number
 
-    def _xml_publication_date(self):    
+    def _xml_publication_date(self):
         publication_date = E.publication_date(
             E.month(self.month),
             E.day(self.day),
             E.year(self.year),
-            media_type=self.media_type
+            media_type=self.media_type,
         )
 
         return publication_date
 
-    def _xml_publisher(self):    
+    def _xml_publisher(self):
         publisher = E.publisher(
             E.publisher_name(self.publisher_name),
-            E.publisher_place(self.publisher_place)
+            E.publisher_place(self.publisher_place),
         )
 
         return publisher
-    
+
     def _xml_institution(self):
         institution = E.institution(
             E.institution_name(self.institution_name),
-            E.institution_place(self.institution_place)
+            E.institution_place(self.institution_place),
         )
 
         if self.institution_acronym:
@@ -148,9 +152,6 @@ class BaseMetadata:
         return institution
 
     def _xml_doi_data(self):
-        doi_data = E.doi_data(
-            E.doi(self.doi),
-            E.resource(self.resource)
-        )
-        
+        doi_data = E.doi_data(E.doi(self.doi), E.resource(self.resource))
+
         return doi_data
