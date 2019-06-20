@@ -1,2 +1,6 @@
 **/__pycache__
 doi_env
+*.xml
+*.bak
+*.pdf
+*.pickle
