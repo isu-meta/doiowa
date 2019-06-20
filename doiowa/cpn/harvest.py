@@ -4,6 +4,7 @@ https://cropprotectionnetwork.org/resources/publications"""
 from lxml import html
 import requests
 
+
 def fetch_list_of_publication_urls():
     publications_url = "https://cropprotectionnetwork.org/resources/publications"
     base_url = "https://cropprotectionnetwork.org"
@@ -19,7 +20,9 @@ def fetch_list_of_publication_urls():
 
     for p_list in pubs_lists:
         pub_urls = [
-            "".join([base_url, rel_url]) for rel_url in p_list.xpath(pub_urls_xpath)
+            "".join([base_url, rel_url])
+            for rel_url in p_list.xpath(pub_urls_xpath)
+            if "ceu.cropprotectionnetwork.org/exams" not in rel_url
         ]
         pubs.extend(pub_urls)
 
