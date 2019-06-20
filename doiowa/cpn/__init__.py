@@ -8,20 +8,23 @@ import requests
 
 from doiowa import BaseMetadata
 
+from . import harvest
+
+
 class Metadata(BaseMetadata):
     def from_pdf_url(self, pdf_url, write_out=False):
         self.resource = pdf_url
         self.from_pdf(self._download_pdf(pdf_url, write_out))
-        
+
     def from_pdf(self, pdf_file):
         pdf = PdfFileReader(pdf_file)
-        
+
         self.xmp = pdf.getXmpMetadata()
         self.doc_info = pdf.getDocumentInfo()
-        
+
         self.contributors = self._get_contributors()
         self.title = self._get_title()
-        self.edition_number=0
+        self.edition_number = 0
         self.publication_date = self._get_date()
         self.year = str(self.publication_date.year)
         self.month = str(self.publication_date.month).zfill(2)
@@ -45,28 +48,35 @@ class Metadata(BaseMetadata):
         datestring = self._reformat_tz(datestring)
         date = datetime.datetime.strptime(datestring, datestring_format)
 
-        return date  
+        return date
 
     def _get_contributors(self):
         contributors = []
-        
+
         if self.xmp.dc_creator:
-            contributors = [self._contributor_to_dict(c) for c in self.xmp.dc_creator if self._contributor_to_dict(c) is not None]
+            contributors = [
+                self._contributor_to_dict(c)
+                for c in self.xmp.dc_creator
+                if self._contributor_to_dict(c) is not None
+            ]
         else:
             try:
-                contributors = [self._contributor_to_dict(c) for c in self.doc_info["/Author"] if self._contributor_to_dict(c) is not None]
+                contributors = [
+                    self._contributor_to_dict(c)
+                    for c in self.doc_info["/Author"]
+                    if self._contributor_to_dict(c) is not None
+                ]
             except KeyError:
                 pass
 
         return contributors
-
 
     def _contributor_to_dict(self, name):
         by_prefix_pattern = re.compile(r"^.+ by")
         parentheses_pattern = re.compile(r"\(.*\)")
 
         name = name.strip()
-        
+
         if name:
             name = re.sub(by_prefix_pattern, "", name)
             name = re.sub(parentheses_pattern, "", name)
@@ -77,7 +87,7 @@ class Metadata(BaseMetadata):
 
         if name == "Crop Protection Network":
             return {"institution_name": name}
-        
+
         if "University" in name:
             return None
 
@@ -94,7 +104,7 @@ class Metadata(BaseMetadata):
             try:
                 title = self.doc_info["/Title"]
             except KeyError:
-                pass        
+                pass
 
         return title
 
