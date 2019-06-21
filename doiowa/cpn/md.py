@@ -28,10 +28,10 @@ class Metadata(BaseMetadata):
         self.month = str(self.publication_date.month).zfill(2)
         self.day = str(self.publication_date.day).zfill(2)
         self.publisher_name = "Crop Protection Netework"
-        self.publisher_place = "United States"
+        self.publisher_place = "United States of America"
         self.institution_name = "Crop Protection Network"
         self.institution_acronym = "CPN"
-        self.institution_place = "United States"
+        self.institution_place = "United States of America"
         self.institution_department = ""
         self.doi = ""
         self.media_type = "online"
