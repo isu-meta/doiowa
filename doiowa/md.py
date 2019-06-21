@@ -9,12 +9,46 @@ def add_dois_to_md_objects(prefix, collection, md_objects):
         md.generate_doi(prefix, collection, n)
 
 
+def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.1"):
+    """Get the DOI batch ID from an XML file
+
+    Extract the DOI batch ID from the provided file. The schema_version
+    argument is optional and only needed for working with historical XML
+    files. Prior to 2019-06-21, we used version 4.3.7 of the Crossref
+    metadata deposit schema and may have used others before that. We have
+    switched to the current version, 4.4.1.
+
+    Parameters
+    ----------
+    xml_file : str
+        Path to an XML file.
+    schema_version : str
+        Version number for the schema to use. Defaults to '4.4.1'.
+
+    Returns
+    -------
+    str
+        The DOI batch ID.
+    """
+
+    ns = {"crossref": f"http://www.crossref.org/schema/{schema_version}"}
+    doi_batch_id_xpath = (
+        "/crossref:doi_batch/crossref:head/crossref:doi_batch_id/text()"
+    )
+    tree = etree.parse(xml_file)
+
+    doi_batch_id = tree.xpath(doi_batch_id_xpath, namespaces=ns)[0]
+
+    return doi_batch_id
+
+
 class CrossrefXML:
     def __init__(self):
         self.root = etree.fromstring(
             b"""<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch version="4.3.7" xmlns="http://www.crossref.org/schema/4.3.7" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.crossref.org/schema/4.3.7 
-http://www.crossref.org/schemas/crossref4.3.7.xsd">
+<doi_batch xmlns="http://www.crossref.org/schema/4.4.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.1"
+           xsi:schemaLocation="http://www.crossref.org/schema/4.4.1  http://data.crossref.org/schemas/crossref4.4.1.xsd">
     <body></body>
 </doi_batch>"""
         )
@@ -186,13 +220,12 @@ class BaseMetadata:
         return publisher
 
     def _xml_institution(self):
-        institution = E.institution(
-            E.institution_name(self.institution_name),
-            E.institution_place(self.institution_place),
-        )
+        institution = E.institution(E.institution_name(self.institution_name))
 
         if self.institution_acronym:
             institution.append(E.institution_acronym(self.institution_acronym))
+
+        institution.append(E.institution_place(self.institution_place))
 
         if self.institution_department:
             institution.append(E.institution_department(self.institution_department))
