@@ -2,6 +2,10 @@ from crossref.restful import Depositor, Etiquette
 
 from doiowa import __name__, __version__, __author__, __email__
 
+def print_response(r):
+    print(f"Response status: {r.status_code}")
+    print(r.text)
+
 
 def submit_xml(doi_batch_id, xml, prefix, username, password, use_test_server=False):
     etiquette = Etiquette(__name__, __version__, __author__, __email__)
