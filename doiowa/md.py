@@ -4,8 +4,8 @@ from lxml import etree
 from lxml.builder import E
 
 
-def add_dois_to_md_objects(prefix, collection, md_objects):
-    for n, md in enumerate(md_objects):
+def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
+    for n, md in enumerate(md_objects, start):
         md.generate_doi(prefix, collection, n)
 
 
@@ -157,15 +157,15 @@ class BaseMetadata:
             )
 
         contributors = self._xml_contributors()
-        if contributors:
-            root[-1][-1].append(contributors)
+        if contributors is not None:
+            root[0].append(contributors)
 
-        root[-1][-1].append(self._xml_title())
-        root[-1][-1].append(self._xml_edition_number())
-        root[-1][-1].append(self._xml_publication_date())
-        root[-1][-1].append(self._xml_publisher())
-        root[-1][-1].append(self._xml_institution())
-        root[-1][-1].append(self._xml_doi_data())
+        root[0].append(self._xml_title())
+        root[0].append(self._xml_edition_number())
+        root[0].append(self._xml_publication_date())
+        root[0].append(self._xml_publisher())
+        root[0].append(self._xml_institution())
+        root[0].append(self._xml_doi_data())
 
         return root
 
@@ -173,17 +173,22 @@ class BaseMetadata:
         contributors = E.contributors()
 
         if self.contributors:
-            for c in self.contributors:
+            for i, c in enumerate(self.contributors):
+                if i == 0:
+                    seq = "first"
+                else:
+                    seq = "additional"
+
                 try:
                     c_xml = E.person_name(
                         E.given_name(c["given_name"]),
                         E.surname(c["surname"]),
-                        sequence="first",
+                        sequence=seq,
                         contributor_role="author",
                     )
                 except KeyError:
                     c_xml = E.organization(
-                        c["organization"], sequence="first", contributor_role="author"
+                        c["organization"], sequence=seq, contributor_role="author"
                     )
 
                 contributors.append(c_xml)
