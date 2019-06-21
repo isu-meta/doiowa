@@ -3,7 +3,7 @@
 <!-- This stylesheet transforms OAI XML data to CrossRef XML. Created by 
 	Ryan Wolfslayer, Iowa State University -->
 <!-- ======================================================== -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:crossref="http://www.crossref.org/schema/4.3.7" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:oai="http://www.openarchives.org/OAI/2.0/" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:crossref="http://www.crossref.org/schema/4.4.1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:oai="http://www.openarchives.org/OAI/2.0/" version="2.0">
 	<xsl:output method="xml" indent="yes" encoding="UTF-8"/>
 
 	<!-- Variables -->

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="2.0"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:crossref="http://www.crossref.org/schema/4.3.7">
+	xmlns:crossref="http://www.crossref.org/schema/4.4.1">
 	<xml:output indent="yes"/>
 	<xsl:template match="/">
 		<!-- https://wiki.scn.sap.com/wiki/display/XI/Remove+empty+tags+from+an+XML+via+XSLT -->
