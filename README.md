@@ -1,21 +1,27 @@
-Doiowa
-=======
+# Doiowa
 
-BePress to CrossRef doi minting for Iowa State University.
+A library to manage the registration and maintenance of DOIs at the Iowa
+State University Library.
 
+**Please note:** This library is currently undergoing a significant rewrite
+and reorganization with the goal of making it more flexible, maintainable,
+and portable. During this process this README file and the documentation
+it links to may fall out of sync with actual usage. Efforts will be made to
+keep this document as current as possible.
 
-Getting Started
-----------------
+## Getting Started
 
-Clone the repository and create an anaconda environment.
+Clone the repository and create a virtual environment.
 
 ``` {.sourceCode .console}
-$ git clone https://github.com/wryan14/doiowa.git
-$ cd doiowa
-$ conda create -n "doi_env" python=3.6.1
-$ activate doi_env
-$ pip install -r requirements.txt
+C:> git clone https://github.com/wryan14/doiowa.git
+C:> cd doiowa
+C:> python -m venv "doi_env"
+C:> doi_env\Scripts\activate
+C:> pip install -r requirements.txt
 ```
+
+## Set and Workflow for Creating DOIs for Digtal Commons Collections
 
 ### Step 1. 
 
@@ -44,10 +50,7 @@ Complete [configuration.xml](infiles/configuration.xml)
 ### Step 2. 
 Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls) with the target bepress_batch xls
 
-### Step 3 (optional). 
-Add [validate.bat](batch/validate.bat]) to PATH. 
-
-### Step 4. 
+### Step 3. 
 Run the code
 
 ``` {.sourceCode .console}
@@ -61,22 +64,15 @@ Upload to CrossRef
 $ python upload.py path/to/file.xml filename 
 ```
 
-Supplemental Files
--------------------
+## Supplemental Files
+
 
 ### suppdata.xml
 
-Currently doiowa supports journals, conferences, report-papers, and disserations. Conferences require [suppdata.xml](transformations/suppdata.xml) be stored in the transformations directory.  This file should include conference event metadata. 
+Currently doiowa supports journals, conferences, report-papers, and disserations.
+Conferences require [suppdata.xml](transformations/suppdata.xml) be stored in the 
+transformations directory.  This file should include conference event metadata. 
 
-### validate.bat 
-
-If [validate.bat](batch/validate.bat) is in PATH, generate a validation report via CrossRef's API.
-
-``` {.sourceCode .console}
-$ validate target_file.xml
-```
-
-Documentation
---------------
+## Documentation
 
 https://mddocs.readthedocs.io/en/latest/doiowa.html
