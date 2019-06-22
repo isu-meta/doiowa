@@ -10,6 +10,12 @@ from doiowa.md import add_dois_to_md_objects, CrossrefXML
 from doiowa.cpn.md import Metadata
 
 def fetch_list_of_publication_urls():
+    """Gets a list of publication urls from the CPN publications webpage.
+
+    Returns
+    -------
+    list of str
+    """
     publications_url = "https://cropprotectionnetwork.org/resources/publications"
     base_url = "https://cropprotectionnetwork.org"
 
@@ -34,6 +40,23 @@ def fetch_list_of_publication_urls():
 
 
 def harvest(depositor):
+    """Harvests metadata from CPN publications.
+
+    For each publication found on the publications web page, a
+    doiowa.cpn.Metadata object is created. For each such object a DOI is
+    generated. The item metadata, along with depositor metadata, are
+    converted to lxml.etrees and inserted into a CrossrefXML etree. The
+    resulting etree is converted into a string to be returned.
+
+    Paremeters
+    ----------
+    depositor : doiowa.md.Depositor
+        Depositor metadata object.
+
+    Returns
+    str
+        A Crossref metadata deposit XML document.
+    """
     md_list = []
     pub_urls = fetch_list_of_publication_urls()
     for url in pub_urls:
