@@ -6,14 +6,14 @@ library from the command line.
 Examples
 --------
 To harvest metadata from a source and generate an XML file to submit
-to the Crossref API, use the ``harvest`` command followed by the target 
+to the Crossref API, use the ``harvest`` command followed by the target
 collection::
 
     python doiowa.py harvest cpn
 
-Current supported collection names are ``cpn``. **Do not run** ``harvest`` 
+Current supported collection names are ``cpn``. **Do not run** ``harvest``
 against a collection that has already been harvested as this script does
-not currently check to see if a DOI has been previously generated for an 
+not currently check to see if a DOI has been previously generated for an
 object. Such functionality will be implemented in the future.
 
 To register one or more DOIs, use the ``register`` command followed by the

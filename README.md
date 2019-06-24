@@ -14,19 +14,55 @@ keep this document as current as possible.
 Clone the repository and create a virtual environment.
 
 ``` {.sourceCode .console}
-C:> git clone https://github.com/wryan14/doiowa.git
-C:> cd doiowa
-C:> python -m venv "doi_env"
-C:> doi_env\Scripts\activate
-C:> pip install -r requirements.txt
+C:\your\dir> git clone https://github.com/wryan14/doiowa.git
+C:\your\dir\doiowa> cd doiowa
+C:\your\dir\doiowa> python -m venv "doi_env"
+C:\your\dir\doiowa> doi_env\Scripts\activate
+C:\your\dir\doiowa> pip install -r requirements.txt
 ```
 
-## Set and Workflow for Creating DOIs for Digtal Commons Collections
+## Basic Usage
 
-### Step 1. 
+To harvest metadata from a source and generate an XML file to submit
+to the Crossref API, use the `harvest` command followed by the target
+collection:
+
+```console
+C:\your\dir\doiowa> python doiowa.py harvest cpn
+```
+
+Current supported collection names are `cpn`. **Do not run** `harvest`
+against a collection that has already been harvested as this script does
+not currently check to see if a DOI has been previously generated for an
+object. Such functionality will be implemented in the future.
+
+To register one or more DOIs, use the `register` command followed by the
+XML file containing the DOIs and associated metadata, your Crossref username
+and password:
+
+```console
+C:\your\dir\doiowa> python doiowa.py register new_dois.xml username password
+```
+
+To check on the status of a submission, use the `check` command followed
+by either the XML file submitted or the DOI batch ID of the submission and
+your Crossref username and password:
+
+```console
+C:\your\dir\doiowa> python doiowa.py check new_dois.xml username password
+```
+
+or:
+
+```console
+C:\your\dir\doiowa> python doiowa.py check new-dois-0001 username password
+```
+
+## Set and Workflow for Creating DOIs for Digital Commons Collections
+
+### Step 1
 
 Complete [configuration.xml](infiles/configuration.xml)
-
 
 | Element | Child Element | Attribute | Description | Required |
 |----------------------|-------------------------|-----------|------------------------------------------------------------------------|------------------------------------|
@@ -46,33 +82,38 @@ Complete [configuration.xml](infiles/configuration.xml)
 | issn |  |  | issn for journals | True for journals; Otherwise False |
 | small |  |  | make True if oai-pmh harvest < 100 records | TRUE |
 
+### Step 2
 
-### Step 2. 
-Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls) with the target bepress_batch xls
+Replace [fake_farmprogressreports_august.xls](infiles/fake_farmprogressreports_august.xls)
+with the target bepress_batch XSL.
 
-### Step 3. 
+### Step 3
+
 Run the code
 
 ``` {.sourceCode .console}
-$ python harvester.py
+C:\your\dir\doiowa> python harvester.py
 ```
 
-### Step 5. 
-Upload to CrossRef 
+### Step 4
+
+Upload to CrossRef
 
 ``` {.sourceCode .console}
-$ python upload.py path/to/file.xml filename 
+C:\your\dir\doiowa> python doiowa.py register path\to\file.xml username password
 ```
 
 ## Supplemental Files
 
-
 ### suppdata.xml
 
-Currently doiowa supports journals, conferences, report-papers, and disserations.
-Conferences require [suppdata.xml](transformations/suppdata.xml) be stored in the 
-transformations directory.  This file should include conference event metadata. 
+Currently doiowa supports journals, conferences, report-papers, and dissertations.
+Conferences require [suppdata.xml](transformations/suppdata.xml) be stored in the
+transformations directory.  This file should include conference event metadata.
 
 ## Documentation
 
-https://mddocs.readthedocs.io/en/latest/doiowa.html
+**Please note:** The following documentation is largely out of date and not
+maintained by the the Iowa State University Library. However, it may have
+further details relevant to generating DOIs for bepress Digital Commons
+collections. [Doiowa legacy documentation](https://mddocs.readthedocs.io/en/latest/doiowa.html)
