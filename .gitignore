@@ -4,3 +4,4 @@ doi_env
 *.bak
 *.pdf
 *.pickle
+*.xlsx
