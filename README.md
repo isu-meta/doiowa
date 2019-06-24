@@ -113,6 +113,9 @@ transformations directory.  This file should include conference event metadata.
 
 ## Documentation
 
+Documentation of the doiowa library, its modules, objects, and functions is
+available as HTML in the doc directory. [Explore the documentation online](http://htmlpreview.github.io/?https://github.com/isu-meta/doiowa/blob/master/doc/doiowa/index.html).
+
 **Please note:** The following documentation is largely out of date and not
 maintained by the the Iowa State University Library. However, it may have
 further details relevant to generating DOIs for bepress Digital Commons

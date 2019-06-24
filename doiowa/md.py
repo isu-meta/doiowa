@@ -77,6 +77,7 @@ class CrossrefXML:
         metadata deposit metadata schema, version 4.4.1.
 
     """
+
     def __init__(self):
         self.root = etree.fromstring(
             b"""<?xml version="1.0" encoding="UTF-8"?>
@@ -177,6 +178,7 @@ class Depositor:
         The name of the organization that owns the information
         being registered.
     """
+
     def __init__(
         self,
         doi_batch_id,
@@ -262,6 +264,7 @@ class BaseMetadata:
         'conference proceedings', 'report', 'standard', 'dataset',
         'dissertation', 'preprint', 'peer review', 'component', and 'grant'.
     """
+
     def __init__(
         self,
         contributors=[],

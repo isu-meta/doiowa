@@ -32,6 +32,9 @@ or::
 
     python doiowa.py check new-dois-0001 username password
 """
+
+__version__ = "2019-06-24"
+
 import argparse
 import datetime
 
@@ -43,7 +46,7 @@ if __name__ == "__main__":
     parser.add_argument("command", help="Accepted arguments: harvest, register, check")
     parser.add_argument(
         "target",
-        help="""Accepted arguments after 'register': cpn.
+        help="""Accepted arguments after 'harvest': cpn.
     Accepted arguments after 'register': An XML file path.
     Accepted arguments after 'check': An XML file name or a DOI batch ID.""",
     )

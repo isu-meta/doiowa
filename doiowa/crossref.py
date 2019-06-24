@@ -1,8 +1,8 @@
 """Functions for working with the Crossref API."""
-
 from crossref.restful import Depositor, Etiquette
 
 from doiowa import __name__, __version__, __author__, __email__
+
 
 def print_response(r):
     """Print a response's status code and text.

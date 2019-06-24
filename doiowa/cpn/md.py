@@ -62,6 +62,7 @@ class Metadata(BaseMetadata):
         'conference proceedings', 'report', 'standard', 'dataset',
         'dissertation', 'preprint', 'peer review', 'component', and 'grant'.
     """
+
     def from_pdf_url(self, pdf_url, write_out=False):
         """Get metadata from an online PDF.
 

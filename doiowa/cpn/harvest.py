@@ -9,6 +9,7 @@ from doiowa import PREFIX
 from doiowa.md import add_dois_to_md_objects, CrossrefXML
 from doiowa.cpn.md import Metadata
 
+
 def fetch_list_of_publication_urls():
     """Gets a list of publication urls from the CPN publications webpage.
 
@@ -76,10 +77,7 @@ def harvest(depositor):
         base_xml.insert_item_metadata(md.to_xml())
 
     xml_content = etree.tostring(
-        base_xml.to_xml(),
-        xml_declaration=True,
-        encoding="UTF-8",
-        pretty_print=True,
+        base_xml.to_xml(), xml_declaration=True, encoding="UTF-8", pretty_print=True
     ).decode("utf-8")
 
     return xml_content

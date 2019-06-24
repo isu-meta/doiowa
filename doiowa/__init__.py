@@ -1,8 +1,8 @@
+"""A library for automating the DOI creation workflow for the Iowa State
+University library's Metadata Services Department."""
 __name__ = "doiowa"
-__version__ = "0.2"
+__version__ = "2019-06-24"
 __author__ = "Wesley Teal"
 __email__ = "metadata@iastate.edu"
-
-from . import md
 
 PREFIX = "10.31274"
