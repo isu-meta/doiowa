@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>doiowa.cpn.md API documentation</title>
+<meta name="description" content="Metadata object for working with Crop Protection Network metadata." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>doiowa.cpn.md</code></h1>
+</header>
+<section id="section-intro">
+<p>Metadata object for working with Crop Protection Network metadata.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;Metadata object for working with Crop Protection Network metadata.&#34;&#34;&#34;
+
+import datetime
+from io import BytesIO
+from os.path import basename
+import re
+
+from PyPDF2 import PdfFileReader
+import requests
+
+from doiowa.md import BaseMetadata
+
+
+class Metadata(BaseMetadata):
+    &#34;&#34;&#34;Metadata class for Crop Protection Network publications.
+
+    This class collects all the metadata needed to create a DOI for 
+    CPN publications and produces the XML for them.
+
+    Parameters
+    ----------
+    contributors : list of dict
+        The digital object&#39;s authors. Dict take the form of 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;} or
+        {&#34;organization&#34;: &#34;name&#34;}.
+    title :str
+        Title of the digital object.
+    edition_number : int
+        Edition number of the object. Defaults to 0.
+    month : str
+        Zero-padded numerical representation of the month of publication.
+        Defaults to &#34;01&#34;.
+    day : str
+        Zero-padded numerical representation of the day of publication.
+        Defaults to &#34;01&#34;.
+    year : str
+        Zero-padded numerical representation of the year of publication.
+        Defaults to &#34;0001&#34;.
+    publisher_name : str
+        Name of the publisher.
+    publisher_place : str
+        Location of the publisher.
+    institution_name : str
+        Name of the organization that hosted or sponsored the digital object.
+    institution_acronym : str
+        Acronym used to refer to the organization that hosted or sponsored
+        the digital object.
+    institution_place : str
+        The location of the organization that hosted or sponsored the digital
+        object.
+    institution_department :str
+        The department that the creators of the digital object worked in. 
+    doi : str
+        Digital Object Identifier.
+    resource: str
+        The URL for the digital object.
+    media_type : str
+        Publication medium. Valid values are: &#39;print&#39; or &#39;electronic&#39;.
+    type_ : str
+        Digital object&#39;s publication type. Valid values are : &#39;journal&#39;,
+        &#39;journal article&#39;, &#39;book&#39;, &#39;book chapter&#39;, &#39;reference work&#39;,
+        &#39;conference proceedings&#39;, &#39;report&#39;, &#39;standard&#39;, &#39;dataset&#39;,
+        &#39;dissertation&#39;, &#39;preprint&#39;, &#39;peer review&#39;, &#39;component&#39;, and &#39;grant&#39;.
+    &#34;&#34;&#34;
+
+    def from_pdf_url(self, pdf_url, write_out=False):
+        &#34;&#34;&#34;Get metadata from an online PDF.
+
+        Sets self.resouce to pdf_url. Calls self._download_pdf to
+        download the PDF and passes it to self.from_pdf to extract the
+        PDF&#39;s metadata.
+
+        Parameters
+        ----------
+        pdf_url : str
+            The HTTP or HTTPS URL for the PDF to be downloaded.
+        write_out : bool
+            If True the downloaded PDF file will be saved to disk
+            in the current working directory. Defaults to False.
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.resource = pdf_url
+        self.from_pdf(self._download_pdf(pdf_url, write_out))
+
+    def from_pdf(self, pdf_file):
+        &#34;&#34;&#34;Get metadata from a PDF file.
+
+        Extracts XMP and Document Information metadata streams from the PDF,
+        saving them into self.xmp and self.doc_info, respectively. This
+        method then uses that metadata to populate the Metadata object&#39;s
+        attributes.
+
+        Parameters
+        ----------
+        pdf_file : file-like object
+            The PDF document.
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        pdf = PdfFileReader(pdf_file)
+
+        self.xmp = pdf.getXmpMetadata()
+        self.doc_info = pdf.getDocumentInfo()
+
+        self.contributors = self._get_contributors()
+        self.title = self._get_title()
+        self.edition_number = 0
+        self.publication_date = self._get_date()
+        self.year = str(self.publication_date.year)
+        self.month = str(self.publication_date.month).zfill(2)
+        self.day = str(self.publication_date.day).zfill(2)
+        self.publisher_name = &#34;Crop Protection Netework&#34;
+        self.publisher_place = &#34;United States of America&#34;
+        self.institution_name = &#34;Crop Protection Network&#34;
+        self.institution_acronym = &#34;CPN&#34;
+        self.institution_place = &#34;United States of America&#34;
+        self.institution_department = &#34;&#34;
+        self.doi = &#34;&#34;
+        self.media_type = &#34;electronic&#34;
+        self.type = &#34;report&#34;
+
+    def _download_pdf(self, pdf, write_out=False):
+        &#34;&#34;&#34;Downloads a PDF file from a URL.
+
+        Downloads a PDF from the web and returns it
+        as a file-like object.
+
+        Parameters
+        ----------
+        pdf : str
+            The URL to fetch the PDF from.
+        write_out : bool
+            If True the PDF is saved in the current working directory.
+            Defaults to False.
+
+        Returns
+        -------
+        file-like object
+            The PDF wrapped in io.BytesIO.
+        &#34;&#34;&#34;
+        file_name = f&#34;{pdf.split(&#39;/&#39;)[-1]}.pdf&#34;
+        r = requests.get(pdf)
+        pdf_content = r.content
+
+        if write_out:
+            with open(file_name, &#34;wb&#34;) as fh:
+                fh.write(pdf_content)
+
+        return BytesIO(pdf_content)
+
+    def _reformat_tz(self, datestring):
+        &#34;&#34;&#34;Reformats datestring timezone declartion.
+
+        Reformats the datestring&#39;s timezone declaration from NN&#39;NN&#39; to NNNN
+        so that the datestring can be parsed in self._datestring_to_datetime.
+
+        Parameters
+        ----------
+        datestring : str
+            A datestring with apostrophes in the timezone offset.
+
+        Returns
+        -------
+        str
+        &#34;&#34;&#34;
+        return re.sub(r&#34;&#39;&#34;, &#34;&#34;, datestring)
+
+    def _datestring_to_datetime(self, datestring):
+        &#34;&#34;&#34;Converts a datestring to a dateime object.
+
+        Takes a datestring formated like D:19990312043055-05&#39;00&#39; and returns
+        a datetime object.
+
+        Parameters
+        ----------
+        datestring : str
+
+        Returns
+        -------
+        datetime
+        &#34;&#34;&#34;
+        datestring_format = &#34;D:%Y%m%d%I%M%S%z&#34;
+
+        datestring = self._reformat_tz(datestring)
+        date = datetime.datetime.strptime(datestring, datestring_format)
+
+        return date
+
+    def _get_contributors(self):
+        &#34;&#34;&#34;Gets contributor list from PDF metadata.
+
+        Checks the self.xmp.dc_creator field for a list of creators. If a list
+        is present, it cleans and filters the list using
+        self._contributor_to_dict. If self.xmp.dc_creator is empty, it tries
+        to build the list from self.doc_info[&#34;/Author&#34;]. If no list of
+        creators is found, an empty list is returned.
+
+        Returns
+        -------
+        list of dict or empty list
+        &#34;&#34;&#34;
+        contributors = []
+
+        if self.xmp.dc_creator:
+            contributors = [
+                self._contributor_to_dict(c)
+                for c in self.xmp.dc_creator
+                if self._contributor_to_dict(c) is not None
+            ]
+        else:
+            try:
+                contributors = [
+                    self._contributor_to_dict(c)
+                    for c in self.doc_info[&#34;/Author&#34;]
+                    if self._contributor_to_dict(c) is not None
+                ]
+            except KeyError:
+                pass
+
+        return contributors
+
+    def _contributor_to_dict(self, name):
+        &#34;&#34;&#34;Converts contributor string to a dict.
+
+        Cleans and filters a contributor string to produce a dictionary
+        with the format {&#34;organization&#34;: &#34;org name&#34;} or 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;}. It filters out
+        institution names that trail author names either after a comma or
+        within parantheses, and filters out leading strings like 
+        &#34;Compiled by&#34; or &#34;Written by&#34; that start some author listings.
+
+        Sometimes author&#39;s organizations are listed as seperate list items
+        from the author. In cases where a sponsoring institution is found
+        on its own, it is filtered out.
+
+        If a name can be made into an author dictionary it is returned in
+        the dictionary format described above. Otherwise None is returned.
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        dict or None
+        &#34;&#34;&#34;
+        by_prefix_pattern = re.compile(r&#34;^.+ by&#34;)
+        parentheses_pattern = re.compile(r&#34;\(.*\)&#34;)
+        filter_words = [
+            &#34;University&#34;,
+            &#34;Agriculture&#34;,
+            &#34;USDA&#34;,
+            &#34;OMAFRA&#34;,
+            &#34;NCERA&#34;,
+            &#34;Extension&#34;,
+            &#34;Research&#34;,
+        ]
+
+        name = name.strip()
+
+        if name:
+            name = re.sub(by_prefix_pattern, &#34;&#34;, name)
+            name = re.sub(parentheses_pattern, &#34;&#34;, name)
+            if &#34;,&#34; in name:
+                name = name.split(&#34;,&#34;)[0]
+        else:
+            return None
+
+        if name == &#34;Crop Protection Network&#34;:
+            return {&#34;organization&#34;: name}
+
+        for word in filter_words:
+            if word in name:
+                return None
+
+        name_parts = name.rpartition(&#34; &#34;)
+        return {&#34;given_name&#34;: name_parts[0], &#34;surname&#34;: name_parts[2]}
+
+    def _get_title(self):
+        &#34;&#34;&#34;Gets the item&#39;s title.
+
+        Returns the title found in either self.xmp.dc_title[&#34;x-defualt&#34;] or
+        self.doc_info[&#34;/Title&#34;]. If no title is found, returns an empty
+        string.
+
+        Returns
+        -------
+        str
+        &#34;&#34;&#34;
+        title = &#34;&#34;
+
+        if self.xmp.dc_title:
+            if self.xmp.dc_title[&#34;x-default&#34;]:
+                title = self.xmp.dc_title[&#34;x-default&#34;]
+        else:
+            try:
+                title = self.doc_info[&#34;/Title&#34;]
+            except KeyError:
+                pass
+
+        return title
+
+    def _get_date(self):
+        &#34;&#34;&#34;Gets the publication date.
+
+        Returns the date found in self.xmp.xmp_createDate or in 
+        self.doc_info[&#34;/CreationDate&#34;]. If no date is found returns the
+        dummy datetime of 0001-01-01.
+
+        Returns
+        -------
+        datetime
+        &#34;&#34;&#34;
+        date = datetime.datetime(1, 1, 1)
+
+        if self.xmp.xmp_createDate:
+            date = self.xmp.xmp_createDate
+        else:
+            try:
+                date = self._datestring_to_datetime(self.doc_info[&#34;/CreationDate&#34;])
+            except KeyError:
+                pass
+
+        return date</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="doiowa.cpn.md.Metadata"><code class="flex name class">
+<span>class <span class="ident">Metadata</span></span>
+<span>(</span><span>contributors=[], title='', edition_number=0, month='01', day='01', year='0001', publisher_name='', publisher_place='', institution_name='', institution_acronym='', institution_place='', institution_department='', doi='', resource='', media_type='', type_='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Metadata class for Crop Protection Network publications.</p>
+<p>This class collects all the metadata needed to create a DOI for
+CPN publications and produces the XML for them.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>contributors</code></strong> :&ensp;<code>list</code> of <code>dict</code></dt>
+<dd>The digital object's authors. Dict take the form of
+{"given_name": "name", "surname": "name"} or
+{"organization": "name"}.</dd>
+<dt>title :str</dt>
+<dt>Title of the digital object.</dt>
+<dt><strong><code>edition_number</code></strong> :&ensp;<code>int</code></dt>
+<dd>Edition number of the object. Defaults to 0.</dd>
+<dt><strong><code>month</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the month of publication.
+Defaults to "01".</dd>
+<dt><strong><code>day</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the day of publication.
+Defaults to "01".</dd>
+<dt><strong><code>year</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the year of publication.
+Defaults to "0001".</dd>
+<dt><strong><code>publisher_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the publisher.</dd>
+<dt><strong><code>publisher_place</code></strong> :&ensp;<code>str</code></dt>
+<dd>Location of the publisher.</dd>
+<dt><strong><code>institution_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the organization that hosted or sponsored the digital object.</dd>
+<dt><strong><code>institution_acronym</code></strong> :&ensp;<code>str</code></dt>
+<dd>Acronym used to refer to the organization that hosted or sponsored
+the digital object.</dd>
+<dt><strong><code>institution_place</code></strong> :&ensp;<code>str</code></dt>
+<dd>The location of the organization that hosted or sponsored the digital
+object.</dd>
+<dt>institution_department :str</dt>
+<dt>The department that the creators of the digital object worked in.</dt>
+<dt><strong><code>doi</code></strong> :&ensp;<code>str</code></dt>
+<dd>Digital Object Identifier.</dd>
+<dt><strong><code>resource</code></strong> :&ensp;<code>str</code></dt>
+<dd>The URL for the digital object.</dd>
+<dt><strong><code>media_type</code></strong> :&ensp;<code>str</code></dt>
+<dd>Publication medium. Valid values are: 'print' or 'electronic'.</dd>
+<dt><strong><code>type_</code></strong> :&ensp;<code>str</code></dt>
+<dd>Digital object's publication type. Valid values are : 'journal',
+'journal article', 'book', 'book chapter', 'reference work',
+'conference proceedings', 'report', 'standard', 'dataset',
+'dissertation', 'preprint', 'peer review', 'component', and 'grant'.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Metadata(BaseMetadata):
+    &#34;&#34;&#34;Metadata class for Crop Protection Network publications.
+
+    This class collects all the metadata needed to create a DOI for 
+    CPN publications and produces the XML for them.
+
+    Parameters
+    ----------
+    contributors : list of dict
+        The digital object&#39;s authors. Dict take the form of 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;} or
+        {&#34;organization&#34;: &#34;name&#34;}.
+    title :str
+        Title of the digital object.
+    edition_number : int
+        Edition number of the object. Defaults to 0.
+    month : str
+        Zero-padded numerical representation of the month of publication.
+        Defaults to &#34;01&#34;.
+    day : str
+        Zero-padded numerical representation of the day of publication.
+        Defaults to &#34;01&#34;.
+    year : str
+        Zero-padded numerical representation of the year of publication.
+        Defaults to &#34;0001&#34;.
+    publisher_name : str
+        Name of the publisher.
+    publisher_place : str
+        Location of the publisher.
+    institution_name : str
+        Name of the organization that hosted or sponsored the digital object.
+    institution_acronym : str
+        Acronym used to refer to the organization that hosted or sponsored
+        the digital object.
+    institution_place : str
+        The location of the organization that hosted or sponsored the digital
+        object.
+    institution_department :str
+        The department that the creators of the digital object worked in. 
+    doi : str
+        Digital Object Identifier.
+    resource: str
+        The URL for the digital object.
+    media_type : str
+        Publication medium. Valid values are: &#39;print&#39; or &#39;electronic&#39;.
+    type_ : str
+        Digital object&#39;s publication type. Valid values are : &#39;journal&#39;,
+        &#39;journal article&#39;, &#39;book&#39;, &#39;book chapter&#39;, &#39;reference work&#39;,
+        &#39;conference proceedings&#39;, &#39;report&#39;, &#39;standard&#39;, &#39;dataset&#39;,
+        &#39;dissertation&#39;, &#39;preprint&#39;, &#39;peer review&#39;, &#39;component&#39;, and &#39;grant&#39;.
+    &#34;&#34;&#34;
+
+    def from_pdf_url(self, pdf_url, write_out=False):
+        &#34;&#34;&#34;Get metadata from an online PDF.
+
+        Sets self.resouce to pdf_url. Calls self._download_pdf to
+        download the PDF and passes it to self.from_pdf to extract the
+        PDF&#39;s metadata.
+
+        Parameters
+        ----------
+        pdf_url : str
+            The HTTP or HTTPS URL for the PDF to be downloaded.
+        write_out : bool
+            If True the downloaded PDF file will be saved to disk
+            in the current working directory. Defaults to False.
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.resource = pdf_url
+        self.from_pdf(self._download_pdf(pdf_url, write_out))
+
+    def from_pdf(self, pdf_file):
+        &#34;&#34;&#34;Get metadata from a PDF file.
+
+        Extracts XMP and Document Information metadata streams from the PDF,
+        saving them into self.xmp and self.doc_info, respectively. This
+        method then uses that metadata to populate the Metadata object&#39;s
+        attributes.
+
+        Parameters
+        ----------
+        pdf_file : file-like object
+            The PDF document.
+        
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        pdf = PdfFileReader(pdf_file)
+
+        self.xmp = pdf.getXmpMetadata()
+        self.doc_info = pdf.getDocumentInfo()
+
+        self.contributors = self._get_contributors()
+        self.title = self._get_title()
+        self.edition_number = 0
+        self.publication_date = self._get_date()
+        self.year = str(self.publication_date.year)
+        self.month = str(self.publication_date.month).zfill(2)
+        self.day = str(self.publication_date.day).zfill(2)
+        self.publisher_name = &#34;Crop Protection Netework&#34;
+        self.publisher_place = &#34;United States of America&#34;
+        self.institution_name = &#34;Crop Protection Network&#34;
+        self.institution_acronym = &#34;CPN&#34;
+        self.institution_place = &#34;United States of America&#34;
+        self.institution_department = &#34;&#34;
+        self.doi = &#34;&#34;
+        self.media_type = &#34;electronic&#34;
+        self.type = &#34;report&#34;
+
+    def _download_pdf(self, pdf, write_out=False):
+        &#34;&#34;&#34;Downloads a PDF file from a URL.
+
+        Downloads a PDF from the web and returns it
+        as a file-like object.
+
+        Parameters
+        ----------
+        pdf : str
+            The URL to fetch the PDF from.
+        write_out : bool
+            If True the PDF is saved in the current working directory.
+            Defaults to False.
+
+        Returns
+        -------
+        file-like object
+            The PDF wrapped in io.BytesIO.
+        &#34;&#34;&#34;
+        file_name = f&#34;{pdf.split(&#39;/&#39;)[-1]}.pdf&#34;
+        r = requests.get(pdf)
+        pdf_content = r.content
+
+        if write_out:
+            with open(file_name, &#34;wb&#34;) as fh:
+                fh.write(pdf_content)
+
+        return BytesIO(pdf_content)
+
+    def _reformat_tz(self, datestring):
+        &#34;&#34;&#34;Reformats datestring timezone declartion.
+
+        Reformats the datestring&#39;s timezone declaration from NN&#39;NN&#39; to NNNN
+        so that the datestring can be parsed in self._datestring_to_datetime.
+
+        Parameters
+        ----------
+        datestring : str
+            A datestring with apostrophes in the timezone offset.
+
+        Returns
+        -------
+        str
+        &#34;&#34;&#34;
+        return re.sub(r&#34;&#39;&#34;, &#34;&#34;, datestring)
+
+    def _datestring_to_datetime(self, datestring):
+        &#34;&#34;&#34;Converts a datestring to a dateime object.
+
+        Takes a datestring formated like D:19990312043055-05&#39;00&#39; and returns
+        a datetime object.
+
+        Parameters
+        ----------
+        datestring : str
+
+        Returns
+        -------
+        datetime
+        &#34;&#34;&#34;
+        datestring_format = &#34;D:%Y%m%d%I%M%S%z&#34;
+
+        datestring = self._reformat_tz(datestring)
+        date = datetime.datetime.strptime(datestring, datestring_format)
+
+        return date
+
+    def _get_contributors(self):
+        &#34;&#34;&#34;Gets contributor list from PDF metadata.
+
+        Checks the self.xmp.dc_creator field for a list of creators. If a list
+        is present, it cleans and filters the list using
+        self._contributor_to_dict. If self.xmp.dc_creator is empty, it tries
+        to build the list from self.doc_info[&#34;/Author&#34;]. If no list of
+        creators is found, an empty list is returned.
+
+        Returns
+        -------
+        list of dict or empty list
+        &#34;&#34;&#34;
+        contributors = []
+
+        if self.xmp.dc_creator:
+            contributors = [
+                self._contributor_to_dict(c)
+                for c in self.xmp.dc_creator
+                if self._contributor_to_dict(c) is not None
+            ]
+        else:
+            try:
+                contributors = [
+                    self._contributor_to_dict(c)
+                    for c in self.doc_info[&#34;/Author&#34;]
+                    if self._contributor_to_dict(c) is not None
+                ]
+            except KeyError:
+                pass
+
+        return contributors
+
+    def _contributor_to_dict(self, name):
+        &#34;&#34;&#34;Converts contributor string to a dict.
+
+        Cleans and filters a contributor string to produce a dictionary
+        with the format {&#34;organization&#34;: &#34;org name&#34;} or 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;}. It filters out
+        institution names that trail author names either after a comma or
+        within parantheses, and filters out leading strings like 
+        &#34;Compiled by&#34; or &#34;Written by&#34; that start some author listings.
+
+        Sometimes author&#39;s organizations are listed as seperate list items
+        from the author. In cases where a sponsoring institution is found
+        on its own, it is filtered out.
+
+        If a name can be made into an author dictionary it is returned in
+        the dictionary format described above. Otherwise None is returned.
+
+        Parameters
+        ----------
+        name : str
+
+        Returns
+        -------
+        dict or None
+        &#34;&#34;&#34;
+        by_prefix_pattern = re.compile(r&#34;^.+ by&#34;)
+        parentheses_pattern = re.compile(r&#34;\(.*\)&#34;)
+        filter_words = [
+            &#34;University&#34;,
+            &#34;Agriculture&#34;,
+            &#34;USDA&#34;,
+            &#34;OMAFRA&#34;,
+            &#34;NCERA&#34;,
+            &#34;Extension&#34;,
+            &#34;Research&#34;,
+        ]
+
+        name = name.strip()
+
+        if name:
+            name = re.sub(by_prefix_pattern, &#34;&#34;, name)
+            name = re.sub(parentheses_pattern, &#34;&#34;, name)
+            if &#34;,&#34; in name:
+                name = name.split(&#34;,&#34;)[0]
+        else:
+            return None
+
+        if name == &#34;Crop Protection Network&#34;:
+            return {&#34;organization&#34;: name}
+
+        for word in filter_words:
+            if word in name:
+                return None
+
+        name_parts = name.rpartition(&#34; &#34;)
+        return {&#34;given_name&#34;: name_parts[0], &#34;surname&#34;: name_parts[2]}
+
+    def _get_title(self):
+        &#34;&#34;&#34;Gets the item&#39;s title.
+
+        Returns the title found in either self.xmp.dc_title[&#34;x-defualt&#34;] or
+        self.doc_info[&#34;/Title&#34;]. If no title is found, returns an empty
+        string.
+
+        Returns
+        -------
+        str
+        &#34;&#34;&#34;
+        title = &#34;&#34;
+
+        if self.xmp.dc_title:
+            if self.xmp.dc_title[&#34;x-default&#34;]:
+                title = self.xmp.dc_title[&#34;x-default&#34;]
+        else:
+            try:
+                title = self.doc_info[&#34;/Title&#34;]
+            except KeyError:
+                pass
+
+        return title
+
+    def _get_date(self):
+        &#34;&#34;&#34;Gets the publication date.
+
+        Returns the date found in self.xmp.xmp_createDate or in 
+        self.doc_info[&#34;/CreationDate&#34;]. If no date is found returns the
+        dummy datetime of 0001-01-01.
+
+        Returns
+        -------
+        datetime
+        &#34;&#34;&#34;
+        date = datetime.datetime(1, 1, 1)
+
+        if self.xmp.xmp_createDate:
+            date = self.xmp.xmp_createDate
+        else:
+            try:
+                date = self._datestring_to_datetime(self.doc_info[&#34;/CreationDate&#34;])
+            except KeyError:
+                pass
+
+        return date</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="doiowa.md.BaseMetadata" href="../md.html#doiowa.md.BaseMetadata">BaseMetadata</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="doiowa.cpn.md.Metadata.from_pdf"><code class="name flex">
+<span>def <span class="ident">from_pdf</span></span>(<span>self, pdf_file)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get metadata from a PDF file.</p>
+<p>Extracts XMP and Document Information metadata streams from the PDF,
+saving them into self.xmp and self.doc_info, respectively. This
+method then uses that metadata to populate the Metadata object's
+attributes.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pdf_file</code></strong> :&ensp;<code>file</code>-<code>like</code> <code>object</code></dt>
+<dd>The PDF document.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def from_pdf(self, pdf_file):
+    &#34;&#34;&#34;Get metadata from a PDF file.
+
+    Extracts XMP and Document Information metadata streams from the PDF,
+    saving them into self.xmp and self.doc_info, respectively. This
+    method then uses that metadata to populate the Metadata object&#39;s
+    attributes.
+
+    Parameters
+    ----------
+    pdf_file : file-like object
+        The PDF document.
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    pdf = PdfFileReader(pdf_file)
+
+    self.xmp = pdf.getXmpMetadata()
+    self.doc_info = pdf.getDocumentInfo()
+
+    self.contributors = self._get_contributors()
+    self.title = self._get_title()
+    self.edition_number = 0
+    self.publication_date = self._get_date()
+    self.year = str(self.publication_date.year)
+    self.month = str(self.publication_date.month).zfill(2)
+    self.day = str(self.publication_date.day).zfill(2)
+    self.publisher_name = &#34;Crop Protection Netework&#34;
+    self.publisher_place = &#34;United States of America&#34;
+    self.institution_name = &#34;Crop Protection Network&#34;
+    self.institution_acronym = &#34;CPN&#34;
+    self.institution_place = &#34;United States of America&#34;
+    self.institution_department = &#34;&#34;
+    self.doi = &#34;&#34;
+    self.media_type = &#34;electronic&#34;
+    self.type = &#34;report&#34;</code></pre>
+</details>
+</dd>
+<dt id="doiowa.cpn.md.Metadata.from_pdf_url"><code class="name flex">
+<span>def <span class="ident">from_pdf_url</span></span>(<span>self, pdf_url, write_out=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get metadata from an online PDF.</p>
+<p>Sets self.resouce to pdf_url. Calls self._download_pdf to
+download the PDF and passes it to self.from_pdf to extract the
+PDF's metadata.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pdf_url</code></strong> :&ensp;<code>str</code></dt>
+<dd>The HTTP or HTTPS URL for the PDF to be downloaded.</dd>
+<dt><strong><code>write_out</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True the downloaded PDF file will be saved to disk
+in the current working directory. Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def from_pdf_url(self, pdf_url, write_out=False):
+    &#34;&#34;&#34;Get metadata from an online PDF.
+
+    Sets self.resouce to pdf_url. Calls self._download_pdf to
+    download the PDF and passes it to self.from_pdf to extract the
+    PDF&#39;s metadata.
+
+    Parameters
+    ----------
+    pdf_url : str
+        The HTTP or HTTPS URL for the PDF to be downloaded.
+    write_out : bool
+        If True the downloaded PDF file will be saved to disk
+        in the current working directory. Defaults to False.
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    self.resource = pdf_url
+    self.from_pdf(self._download_pdf(pdf_url, write_out))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="doiowa.md.BaseMetadata" href="../md.html#doiowa.md.BaseMetadata">BaseMetadata</a></b></code>:
+<ul class="hlist">
+<li><code><a title="doiowa.md.BaseMetadata.generate_doi" href="../md.html#doiowa.md.BaseMetadata.generate_doi">generate_doi</a></code></li>
+<li><code><a title="doiowa.md.BaseMetadata.to_xml" href="../md.html#doiowa.md.BaseMetadata.to_xml">to_xml</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="doiowa.cpn" href="index.html">doiowa.cpn</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="doiowa.cpn.md.Metadata" href="#doiowa.cpn.md.Metadata">Metadata</a></code></h4>
+<ul class="">
+<li><code><a title="doiowa.cpn.md.Metadata.from_pdf" href="#doiowa.cpn.md.Metadata.from_pdf">from_pdf</a></code></li>
+<li><code><a title="doiowa.cpn.md.Metadata.from_pdf_url" href="#doiowa.cpn.md.Metadata.from_pdf_url">from_pdf_url</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

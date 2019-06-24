@@ -1,0 +1,1458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.2" />
+<title>doiowa.md API documentation</title>
+<meta name="description" content="Objects and functions for working with metadata in doiowa." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>doiowa.md</code></h1>
+</header>
+<section id="section-intro">
+<p>Objects and functions for working with metadata in doiowa.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;Objects and functions for working with metadata in doiowa.&#34;&#34;&#34;
+import datetime
+
+from lxml import etree
+from lxml.builder import E
+
+
+def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
+    &#34;&#34;&#34;Create DOIs for each object in a list.
+
+    Pass data for generating DOIs to the generate_doi method of
+    each doiowa.md.BaseMetadata object in a list.
+
+    Parameters
+    ----------
+    prefix : str
+        The DOI prefix used by your organization. Ex. 10.99999.
+    collection : str
+        The collection acronym.
+    md_objects : list of doiowa.md.BaseMetadata objects
+        Metadata objects to add DOIs to.
+    start : int
+        The sequence number to start at. Optional. Default is 0.
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    for n, md in enumerate(md_objects, start):
+        md.generate_doi(prefix, collection, n)
+
+
+def get_doi_batch_id_from_xml(xml_file, schema_version=&#34;4.4.1&#34;):
+    &#34;&#34;&#34;Get the DOI batch ID from an XML file
+
+    Extract the DOI batch ID from the provided file. The schema_version
+    argument is optional and only needed for working with historical XML
+    files. Prior to 2019-06-21, we used version 4.3.7 of the Crossref
+    metadata deposit schema and may have used others before that. We have
+    switched to the current version, 4.4.1.
+
+    Parameters
+    ----------
+    xml_file : str
+        Path to an XML file.
+    schema_version : str
+        Version number for the schema to use. Defaults to &#39;4.4.1&#39;.
+
+    Returns
+    -------
+    str
+        The DOI batch ID.
+    &#34;&#34;&#34;
+
+    ns = {&#34;crossref&#34;: f&#34;http://www.crossref.org/schema/{schema_version}&#34;}
+    doi_batch_id_xpath = (
+        &#34;/crossref:doi_batch/crossref:head/crossref:doi_batch_id/text()&#34;
+    )
+    tree = etree.parse(xml_file)
+
+    doi_batch_id = tree.xpath(doi_batch_id_xpath, namespaces=ns)[0]
+
+    return doi_batch_id
+
+
+class CrossrefXML:
+    &#34;&#34;&#34;Object for root Crossref XML.
+
+    This object includes methods to build a valid Crossref
+    metadata deposit XML file from doiowa.md.Depositor and
+    doiowa.md.BaseMetadata provided lxml.etrees.
+
+    Attributes
+    ----------
+    root : lxml.etree
+        XML root element and body element that conform to the Crossref
+        metadata deposit metadata schema, version 4.4.1.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.root = etree.fromstring(
+            b&#34;&#34;&#34;&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;doi_batch xmlns=&#34;http://www.crossref.org/schema/4.4.1&#34;
+           xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34; version=&#34;4.4.1&#34;
+           xsi:schemaLocation=&#34;http://www.crossref.org/schema/4.4.1  http://data.crossref.org/schemas/crossref4.4.1.xsd&#34;&gt;
+    &lt;body&gt;&lt;/body&gt;
+&lt;/doi_batch&gt;&#34;&#34;&#34;
+        )
+
+    def insert_depositor(self, depositor_xml):
+        &#34;&#34;&#34;Adds depositor metadata to CrossrefXML.root.
+
+        Add the lxml.etree from doiowa.md.Depositor.to_xml()
+        to CrossrefXML.root.
+
+        Parameters
+        ----------
+        depositor_xml : lxml.etree
+            XML head element with depositor child element to insert
+            into first child position of doi_batch element.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.root.insert(0, depositor_xml)
+
+    def insert_item_metadata(self, md):
+        &#34;&#34;&#34;Adds digital object metadata to body element in CrossrefXML.root.
+
+        Adds the lxml.etree from doiowa.md.BaseMetadata.to_xml() to
+        CrossrefXML.root.
+
+
+        Parameters:
+        -----------
+        md : lmxl.etree
+            XML item metadata to insert into the body element of
+            doi_batch.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.root[-1].append(md)
+
+    def to_xml(self):
+        &#34;&#34;&#34;Returns self.root lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        return self.root
+
+
+class Depositor:
+    &#34;&#34;&#34;Crossref depositor metadata.
+
+    This object contains the metadata for the Crossref metadata
+    deposit schema&#39;s depositor element and associated children, and
+    a to_xml method to return an lxml.etree of the depositor metadata
+    that can be inserted into a doiowa.md.CrossrefXML object to 
+    build a valid Crossref XML document.
+
+    Parameters
+    ----------
+    doi_batch_id : str or int
+        Batch ID for this DOI registration submission. Must be
+        unique from all other batch IDs used. We currently use a
+        timestamp with the format YYYYMMDDHHMMSS.
+    timestamp : int
+        Timestamp for the submission. Currently this uses the
+        format YYYYMMDDHHMMSS.
+    depositor_name : str
+        The name of the organization depositing the DOI metadata.
+        Defaults to &#39;Iowa State University. Library. Metadata
+        Services Department&#39;.
+    email_address : str
+        The email address of the depositor. Defaults to 
+        &#39;metadata@iastate.edu&#39;.
+    registrant : str
+        The name of the organization that owns the information
+        being registered. Defaults to &#39;Iowa State University. Library&#39;.
+
+    Attributes
+    ----------
+    doi_batch_id : str or int
+        Batch ID for this DOI registration submission.
+    timestamp : int
+        Timestamp for the submission.
+    depositor_name : str
+        The name of the organization depositing the DOI metadata.
+    email_address : str
+        The email address of the depositor.
+    registrant : str
+        The name of the organization that owns the information
+        being registered.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        doi_batch_id,
+        timestamp,
+        depositor_name=&#34;Iowa State University. Library. Metadata Services Department&#34;,
+        email_address=&#34;metadata@iastate.edu&#34;,
+        registrant=&#34;Iowa State University. Library&#34;,
+    ):
+        self.doi_batch_id = doi_batch_id
+        self.timestamp = timestamp
+        self.depositor_name = depositor_name
+        self.email_address = email_address
+        self.registrant = registrant
+
+    def to_xml(self):
+        &#34;&#34;&#34;Returns self.root lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        head = E.head(
+            E.doi_batch_id(self.doi_batch_id),
+            E.timestamp(self.timestamp),
+            E.depositor(
+                E.depositor_name(self.depositor_name),
+                E.email_address(self.email_address),
+            ),
+            E.registrant(self.registrant),
+        )
+
+        return head
+
+
+class BaseMetadata:
+    &#34;&#34;&#34;Foundation of all diowa Metadata classes.
+
+    This class collects all the metadata needed to create a DOI for an
+    object and produces the XML for the digital object.
+
+    Parameters
+    ----------
+    contributors : list of dict
+        The digital object&#39;s authors. Dict take the form of 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;} or
+        {&#34;organization&#34;: &#34;name&#34;}.
+    title :str
+        Title of the digital object.
+    edition_number : int
+        Edition number of the object. Defaults to 0.
+    month : str
+        Zero-padded numerical representation of the month of publication.
+        Defaults to &#34;01&#34;.
+    day : str
+        Zero-padded numerical representation of the day of publication.
+        Defaults to &#34;01&#34;.
+    year : str
+        Zero-padded numerical representation of the year of publication.
+        Defaults to &#34;0001&#34;.
+    publisher_name : str
+        Name of the publisher.
+    publisher_place : str
+        Location of the publisher.
+    institution_name : str
+        Name of the organization that hosted or sponsored the digital object.
+    institution_acronym : str
+        Acronym used to refer to the organization that hosted or sponsored
+        the digital object.
+    institution_place : str
+        The location of the organization that hosted or sponsored the digital
+        object.
+    institution_department :str
+        The department that the creators of the digital object worked in. 
+    doi : str
+        Digital Object Identifier.
+    resource: str
+        The URL for the digital object.
+    media_type : str
+        Publication medium. Valid values are: &#39;print&#39; or &#39;electronic&#39;.
+    type_ : str
+        Digital object&#39;s publication type. Valid values are : &#39;journal&#39;,
+        &#39;journal article&#39;, &#39;book&#39;, &#39;book chapter&#39;, &#39;reference work&#39;,
+        &#39;conference proceedings&#39;, &#39;report&#39;, &#39;standard&#39;, &#39;dataset&#39;,
+        &#39;dissertation&#39;, &#39;preprint&#39;, &#39;peer review&#39;, &#39;component&#39;, and &#39;grant&#39;.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        contributors=[],
+        title=&#34;&#34;,
+        edition_number=0,
+        month=&#34;01&#34;,
+        day=&#34;01&#34;,
+        year=&#34;0001&#34;,
+        publisher_name=&#34;&#34;,
+        publisher_place=&#34;&#34;,
+        institution_name=&#34;&#34;,
+        institution_acronym=&#34;&#34;,
+        institution_place=&#34;&#34;,
+        institution_department=&#34;&#34;,
+        doi=&#34;&#34;,
+        resource=&#34;&#34;,
+        media_type=&#34;&#34;,
+        type_=&#34;&#34;,
+    ):
+        self.contributors = contributors
+        self.title = title
+        self.edition_number = edition_number
+        self.month = month
+        self.day = day
+        self.year = year
+        self.publisher_name = publisher_name
+        self.publisher_place = publisher_place
+        self.institution_name = institution_name
+        self.institution_place = institution_place
+        self.institution_acronym = institution_acronym
+        self.institution_department = institution_department
+        self.doi = doi
+        self.resource = resource
+        self.media_type = media_type
+        self.type = type_
+        self.timestamp = datetime.datetime.now().isoformat()
+
+    def generate_doi(self, prefix, collection, seq_num):
+        &#34;&#34;&#34;Generate the DOI for the item.
+
+        As of June 2019, our practice is to build DOIs using the
+        following format: our DOI prefix, followed by a slash, followed
+        by a collection acronym (For BePress this is the OAI-PMH-searchable
+        acronym used in BePress. May differ for other platforms.),
+        followed by a hyphen, followed by the date in condensed
+        ISO 8601 format (YYYYMMDD), followed by a hyphen, followed
+        by the sequence number, which is three digits wide and
+        includes leading zeros for numbers with fewer than three
+        digits.
+
+        An example from the Animal Industry Report collection:
+        10.31274/ans_air-190411-001
+
+        This pattern is not used for digital press materials,
+        which will have DOIs generated from within Janeway.
+
+        Parameters
+        ----------
+        prefix : str
+            Your organization&#39;s DOI prefix. Ex. 10.99999.
+        collection: str
+            The collection abbreviation.
+        seq_num : int
+            Number between 0 and 999.
+        &#34;&#34;&#34;
+        date = datetime.date.today().strftime(&#34;%Y%m%d&#34;)
+        self.doi = f&#34;{prefix}/{collection}-{date}-{str(seq_num).zfill(3)}&#34;
+
+    def to_xml(self):
+        &#34;&#34;&#34;Generate XML from attributes.
+
+        Generates XML represented as an lxml.etree base on available
+        attributes.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        if self.type == &#34;report&#34;:
+            root = etree.fromstring(
+                &#39;&lt;report-paper&gt;&lt;report-paper_metadata language=&#34;en&#34;&gt;&lt;/report-paper_metadata&gt;&lt;/report-paper&gt;&#39;
+            )
+
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root[0].append(contributors)
+
+        root[0].append(self._xml_title())
+        root[0].append(self._xml_edition_number())
+        root[0].append(self._xml_publication_date())
+        root[0].append(self._xml_publisher())
+        root[0].append(self._xml_institution())
+        root[0].append(self._xml_doi_data())
+
+        return root
+
+    def _xml_contributors(self):
+        &#34;&#34;&#34;Returns contributor XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        contributors = E.contributors()
+
+        if self.contributors:
+            for i, c in enumerate(self.contributors):
+                if i == 0:
+                    seq = &#34;first&#34;
+                else:
+                    seq = &#34;additional&#34;
+
+                try:
+                    c_xml = E.person_name(
+                        E.given_name(c[&#34;given_name&#34;]),
+                        E.surname(c[&#34;surname&#34;]),
+                        sequence=seq,
+                        contributor_role=&#34;author&#34;,
+                    )
+                except KeyError:
+                    c_xml = E.organization(
+                        c[&#34;organization&#34;], sequence=seq, contributor_role=&#34;author&#34;
+                    )
+
+                contributors.append(c_xml)
+
+                return contributors
+        else:
+            return None
+
+    def _xml_title(self):
+        &#34;&#34;&#34;Returns title XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        title = E.titles(E.title(self.title))
+
+        return title
+
+    def _xml_edition_number(self):
+        &#34;&#34;&#34;Returns edition number XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        edition_number = E.edition_number(str(self.edition_number))
+        return edition_number
+
+    def _xml_publication_date(self):
+        &#34;&#34;&#34;Returns publication date XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        publication_date = E.publication_date(
+            E.month(self.month),
+            E.day(self.day),
+            E.year(self.year),
+            media_type=self.media_type,
+        )
+
+        return publication_date
+
+    def _xml_publisher(self):
+        &#34;&#34;&#34;Returns publisher XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        publisher = E.publisher(
+            E.publisher_name(self.publisher_name),
+            E.publisher_place(self.publisher_place),
+        )
+
+        return publisher
+
+    def _xml_institution(self):
+        &#34;&#34;&#34;Returns institution XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        institution = E.institution(E.institution_name(self.institution_name))
+
+        if self.institution_acronym:
+            institution.append(E.institution_acronym(self.institution_acronym))
+
+        institution.append(E.institution_place(self.institution_place))
+
+        if self.institution_department:
+            institution.append(E.institution_department(self.institution_department))
+
+        return institution
+
+    def _xml_doi_data(self):
+        &#34;&#34;&#34;Returns DOI data XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        doi_data = E.doi_data(E.doi(self.doi), E.resource(self.resource))
+
+        return doi_data</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="doiowa.md.add_dois_to_md_objects"><code class="name flex">
+<span>def <span class="ident">add_dois_to_md_objects</span></span>(<span>prefix, collection, md_objects, start=0)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Create DOIs for each object in a list.</p>
+<p>Pass data for generating DOIs to the generate_doi method of
+each doiowa.md.BaseMetadata object in a list.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>The DOI prefix used by your organization. Ex. 10.99999.</dd>
+<dt><strong><code>collection</code></strong> :&ensp;<code>str</code></dt>
+<dd>The collection acronym.</dd>
+<dt><strong><code>md_objects</code></strong> :&ensp;<code>list</code> of <a title="doiowa.md.BaseMetadata" href="#doiowa.md.BaseMetadata"><code>BaseMetadata</code></a> <code>objects</code></dt>
+<dd>Metadata objects to add DOIs to.</dd>
+<dt><strong><code>start</code></strong> :&ensp;<code>int</code></dt>
+<dd>The sequence number to start at. Optional. Default is 0.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
+    &#34;&#34;&#34;Create DOIs for each object in a list.
+
+    Pass data for generating DOIs to the generate_doi method of
+    each doiowa.md.BaseMetadata object in a list.
+
+    Parameters
+    ----------
+    prefix : str
+        The DOI prefix used by your organization. Ex. 10.99999.
+    collection : str
+        The collection acronym.
+    md_objects : list of doiowa.md.BaseMetadata objects
+        Metadata objects to add DOIs to.
+    start : int
+        The sequence number to start at. Optional. Default is 0.
+    
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    for n, md in enumerate(md_objects, start):
+        md.generate_doi(prefix, collection, n)</code></pre>
+</details>
+</dd>
+<dt id="doiowa.md.get_doi_batch_id_from_xml"><code class="name flex">
+<span>def <span class="ident">get_doi_batch_id_from_xml</span></span>(<span>xml_file, schema_version='4.4.1')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Get the DOI batch ID from an XML file</p>
+<p>Extract the DOI batch ID from the provided file. The schema_version
+argument is optional and only needed for working with historical XML
+files. Prior to 2019-06-21, we used version 4.3.7 of the Crossref
+metadata deposit schema and may have used others before that. We have
+switched to the current version, 4.4.1.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>xml_file</code></strong> :&ensp;<code>str</code></dt>
+<dd>Path to an XML file.</dd>
+<dt><strong><code>schema_version</code></strong> :&ensp;<code>str</code></dt>
+<dd>Version number for the schema to use. Defaults to '4.4.1'.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>str</code></dt>
+<dd>The DOI batch ID.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def get_doi_batch_id_from_xml(xml_file, schema_version=&#34;4.4.1&#34;):
+    &#34;&#34;&#34;Get the DOI batch ID from an XML file
+
+    Extract the DOI batch ID from the provided file. The schema_version
+    argument is optional and only needed for working with historical XML
+    files. Prior to 2019-06-21, we used version 4.3.7 of the Crossref
+    metadata deposit schema and may have used others before that. We have
+    switched to the current version, 4.4.1.
+
+    Parameters
+    ----------
+    xml_file : str
+        Path to an XML file.
+    schema_version : str
+        Version number for the schema to use. Defaults to &#39;4.4.1&#39;.
+
+    Returns
+    -------
+    str
+        The DOI batch ID.
+    &#34;&#34;&#34;
+
+    ns = {&#34;crossref&#34;: f&#34;http://www.crossref.org/schema/{schema_version}&#34;}
+    doi_batch_id_xpath = (
+        &#34;/crossref:doi_batch/crossref:head/crossref:doi_batch_id/text()&#34;
+    )
+    tree = etree.parse(xml_file)
+
+    doi_batch_id = tree.xpath(doi_batch_id_xpath, namespaces=ns)[0]
+
+    return doi_batch_id</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="doiowa.md.BaseMetadata"><code class="flex name class">
+<span>class <span class="ident">BaseMetadata</span></span>
+<span>(</span><span>contributors=[], title='', edition_number=0, month='01', day='01', year='0001', publisher_name='', publisher_place='', institution_name='', institution_acronym='', institution_place='', institution_department='', doi='', resource='', media_type='', type_='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Foundation of all diowa Metadata classes.</p>
+<p>This class collects all the metadata needed to create a DOI for an
+object and produces the XML for the digital object.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>contributors</code></strong> :&ensp;<code>list</code> of <code>dict</code></dt>
+<dd>The digital object's authors. Dict take the form of
+{"given_name": "name", "surname": "name"} or
+{"organization": "name"}.</dd>
+<dt>title :str</dt>
+<dt>Title of the digital object.</dt>
+<dt><strong><code>edition_number</code></strong> :&ensp;<code>int</code></dt>
+<dd>Edition number of the object. Defaults to 0.</dd>
+<dt><strong><code>month</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the month of publication.
+Defaults to "01".</dd>
+<dt><strong><code>day</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the day of publication.
+Defaults to "01".</dd>
+<dt><strong><code>year</code></strong> :&ensp;<code>str</code></dt>
+<dd>Zero-padded numerical representation of the year of publication.
+Defaults to "0001".</dd>
+<dt><strong><code>publisher_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the publisher.</dd>
+<dt><strong><code>publisher_place</code></strong> :&ensp;<code>str</code></dt>
+<dd>Location of the publisher.</dd>
+<dt><strong><code>institution_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>Name of the organization that hosted or sponsored the digital object.</dd>
+<dt><strong><code>institution_acronym</code></strong> :&ensp;<code>str</code></dt>
+<dd>Acronym used to refer to the organization that hosted or sponsored
+the digital object.</dd>
+<dt><strong><code>institution_place</code></strong> :&ensp;<code>str</code></dt>
+<dd>The location of the organization that hosted or sponsored the digital
+object.</dd>
+<dt>institution_department :str</dt>
+<dt>The department that the creators of the digital object worked in.</dt>
+<dt><strong><code>doi</code></strong> :&ensp;<code>str</code></dt>
+<dd>Digital Object Identifier.</dd>
+<dt><strong><code>resource</code></strong> :&ensp;<code>str</code></dt>
+<dd>The URL for the digital object.</dd>
+<dt><strong><code>media_type</code></strong> :&ensp;<code>str</code></dt>
+<dd>Publication medium. Valid values are: 'print' or 'electronic'.</dd>
+<dt><strong><code>type_</code></strong> :&ensp;<code>str</code></dt>
+<dd>Digital object's publication type. Valid values are : 'journal',
+'journal article', 'book', 'book chapter', 'reference work',
+'conference proceedings', 'report', 'standard', 'dataset',
+'dissertation', 'preprint', 'peer review', 'component', and 'grant'.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class BaseMetadata:
+    &#34;&#34;&#34;Foundation of all diowa Metadata classes.
+
+    This class collects all the metadata needed to create a DOI for an
+    object and produces the XML for the digital object.
+
+    Parameters
+    ----------
+    contributors : list of dict
+        The digital object&#39;s authors. Dict take the form of 
+        {&#34;given_name&#34;: &#34;name&#34;, &#34;surname&#34;: &#34;name&#34;} or
+        {&#34;organization&#34;: &#34;name&#34;}.
+    title :str
+        Title of the digital object.
+    edition_number : int
+        Edition number of the object. Defaults to 0.
+    month : str
+        Zero-padded numerical representation of the month of publication.
+        Defaults to &#34;01&#34;.
+    day : str
+        Zero-padded numerical representation of the day of publication.
+        Defaults to &#34;01&#34;.
+    year : str
+        Zero-padded numerical representation of the year of publication.
+        Defaults to &#34;0001&#34;.
+    publisher_name : str
+        Name of the publisher.
+    publisher_place : str
+        Location of the publisher.
+    institution_name : str
+        Name of the organization that hosted or sponsored the digital object.
+    institution_acronym : str
+        Acronym used to refer to the organization that hosted or sponsored
+        the digital object.
+    institution_place : str
+        The location of the organization that hosted or sponsored the digital
+        object.
+    institution_department :str
+        The department that the creators of the digital object worked in. 
+    doi : str
+        Digital Object Identifier.
+    resource: str
+        The URL for the digital object.
+    media_type : str
+        Publication medium. Valid values are: &#39;print&#39; or &#39;electronic&#39;.
+    type_ : str
+        Digital object&#39;s publication type. Valid values are : &#39;journal&#39;,
+        &#39;journal article&#39;, &#39;book&#39;, &#39;book chapter&#39;, &#39;reference work&#39;,
+        &#39;conference proceedings&#39;, &#39;report&#39;, &#39;standard&#39;, &#39;dataset&#39;,
+        &#39;dissertation&#39;, &#39;preprint&#39;, &#39;peer review&#39;, &#39;component&#39;, and &#39;grant&#39;.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        contributors=[],
+        title=&#34;&#34;,
+        edition_number=0,
+        month=&#34;01&#34;,
+        day=&#34;01&#34;,
+        year=&#34;0001&#34;,
+        publisher_name=&#34;&#34;,
+        publisher_place=&#34;&#34;,
+        institution_name=&#34;&#34;,
+        institution_acronym=&#34;&#34;,
+        institution_place=&#34;&#34;,
+        institution_department=&#34;&#34;,
+        doi=&#34;&#34;,
+        resource=&#34;&#34;,
+        media_type=&#34;&#34;,
+        type_=&#34;&#34;,
+    ):
+        self.contributors = contributors
+        self.title = title
+        self.edition_number = edition_number
+        self.month = month
+        self.day = day
+        self.year = year
+        self.publisher_name = publisher_name
+        self.publisher_place = publisher_place
+        self.institution_name = institution_name
+        self.institution_place = institution_place
+        self.institution_acronym = institution_acronym
+        self.institution_department = institution_department
+        self.doi = doi
+        self.resource = resource
+        self.media_type = media_type
+        self.type = type_
+        self.timestamp = datetime.datetime.now().isoformat()
+
+    def generate_doi(self, prefix, collection, seq_num):
+        &#34;&#34;&#34;Generate the DOI for the item.
+
+        As of June 2019, our practice is to build DOIs using the
+        following format: our DOI prefix, followed by a slash, followed
+        by a collection acronym (For BePress this is the OAI-PMH-searchable
+        acronym used in BePress. May differ for other platforms.),
+        followed by a hyphen, followed by the date in condensed
+        ISO 8601 format (YYYYMMDD), followed by a hyphen, followed
+        by the sequence number, which is three digits wide and
+        includes leading zeros for numbers with fewer than three
+        digits.
+
+        An example from the Animal Industry Report collection:
+        10.31274/ans_air-190411-001
+
+        This pattern is not used for digital press materials,
+        which will have DOIs generated from within Janeway.
+
+        Parameters
+        ----------
+        prefix : str
+            Your organization&#39;s DOI prefix. Ex. 10.99999.
+        collection: str
+            The collection abbreviation.
+        seq_num : int
+            Number between 0 and 999.
+        &#34;&#34;&#34;
+        date = datetime.date.today().strftime(&#34;%Y%m%d&#34;)
+        self.doi = f&#34;{prefix}/{collection}-{date}-{str(seq_num).zfill(3)}&#34;
+
+    def to_xml(self):
+        &#34;&#34;&#34;Generate XML from attributes.
+
+        Generates XML represented as an lxml.etree base on available
+        attributes.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        if self.type == &#34;report&#34;:
+            root = etree.fromstring(
+                &#39;&lt;report-paper&gt;&lt;report-paper_metadata language=&#34;en&#34;&gt;&lt;/report-paper_metadata&gt;&lt;/report-paper&gt;&#39;
+            )
+
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root[0].append(contributors)
+
+        root[0].append(self._xml_title())
+        root[0].append(self._xml_edition_number())
+        root[0].append(self._xml_publication_date())
+        root[0].append(self._xml_publisher())
+        root[0].append(self._xml_institution())
+        root[0].append(self._xml_doi_data())
+
+        return root
+
+    def _xml_contributors(self):
+        &#34;&#34;&#34;Returns contributor XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        contributors = E.contributors()
+
+        if self.contributors:
+            for i, c in enumerate(self.contributors):
+                if i == 0:
+                    seq = &#34;first&#34;
+                else:
+                    seq = &#34;additional&#34;
+
+                try:
+                    c_xml = E.person_name(
+                        E.given_name(c[&#34;given_name&#34;]),
+                        E.surname(c[&#34;surname&#34;]),
+                        sequence=seq,
+                        contributor_role=&#34;author&#34;,
+                    )
+                except KeyError:
+                    c_xml = E.organization(
+                        c[&#34;organization&#34;], sequence=seq, contributor_role=&#34;author&#34;
+                    )
+
+                contributors.append(c_xml)
+
+                return contributors
+        else:
+            return None
+
+    def _xml_title(self):
+        &#34;&#34;&#34;Returns title XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        title = E.titles(E.title(self.title))
+
+        return title
+
+    def _xml_edition_number(self):
+        &#34;&#34;&#34;Returns edition number XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        edition_number = E.edition_number(str(self.edition_number))
+        return edition_number
+
+    def _xml_publication_date(self):
+        &#34;&#34;&#34;Returns publication date XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        publication_date = E.publication_date(
+            E.month(self.month),
+            E.day(self.day),
+            E.year(self.year),
+            media_type=self.media_type,
+        )
+
+        return publication_date
+
+    def _xml_publisher(self):
+        &#34;&#34;&#34;Returns publisher XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        publisher = E.publisher(
+            E.publisher_name(self.publisher_name),
+            E.publisher_place(self.publisher_place),
+        )
+
+        return publisher
+
+    def _xml_institution(self):
+        &#34;&#34;&#34;Returns institution XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        institution = E.institution(E.institution_name(self.institution_name))
+
+        if self.institution_acronym:
+            institution.append(E.institution_acronym(self.institution_acronym))
+
+        institution.append(E.institution_place(self.institution_place))
+
+        if self.institution_department:
+            institution.append(E.institution_department(self.institution_department))
+
+        return institution
+
+    def _xml_doi_data(self):
+        &#34;&#34;&#34;Returns DOI data XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        doi_data = E.doi_data(E.doi(self.doi), E.resource(self.resource))
+
+        return doi_data</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="doiowa.cpn.md.Metadata" href="cpn/md.html#doiowa.cpn.md.Metadata">Metadata</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="doiowa.md.BaseMetadata.generate_doi"><code class="name flex">
+<span>def <span class="ident">generate_doi</span></span>(<span>self, prefix, collection, seq_num)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate the DOI for the item.</p>
+<p>As of June 2019, our practice is to build DOIs using the
+following format: our DOI prefix, followed by a slash, followed
+by a collection acronym (For BePress this is the OAI-PMH-searchable
+acronym used in BePress. May differ for other platforms.),
+followed by a hyphen, followed by the date in condensed
+ISO 8601 format (YYYYMMDD), followed by a hyphen, followed
+by the sequence number, which is three digits wide and
+includes leading zeros for numbers with fewer than three
+digits.</p>
+<p>An example from the Animal Industry Report collection:
+10.31274/ans_air-190411-001</p>
+<p>This pattern is not used for digital press materials,
+which will have DOIs generated from within Janeway.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>Your organization's DOI prefix. Ex. 10.99999.</dd>
+<dt><strong><code>collection</code></strong> :&ensp;<code>str</code></dt>
+<dd>The collection abbreviation.</dd>
+<dt><strong><code>seq_num</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number between 0 and 999.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def generate_doi(self, prefix, collection, seq_num):
+    &#34;&#34;&#34;Generate the DOI for the item.
+
+    As of June 2019, our practice is to build DOIs using the
+    following format: our DOI prefix, followed by a slash, followed
+    by a collection acronym (For BePress this is the OAI-PMH-searchable
+    acronym used in BePress. May differ for other platforms.),
+    followed by a hyphen, followed by the date in condensed
+    ISO 8601 format (YYYYMMDD), followed by a hyphen, followed
+    by the sequence number, which is three digits wide and
+    includes leading zeros for numbers with fewer than three
+    digits.
+
+    An example from the Animal Industry Report collection:
+    10.31274/ans_air-190411-001
+
+    This pattern is not used for digital press materials,
+    which will have DOIs generated from within Janeway.
+
+    Parameters
+    ----------
+    prefix : str
+        Your organization&#39;s DOI prefix. Ex. 10.99999.
+    collection: str
+        The collection abbreviation.
+    seq_num : int
+        Number between 0 and 999.
+    &#34;&#34;&#34;
+    date = datetime.date.today().strftime(&#34;%Y%m%d&#34;)
+    self.doi = f&#34;{prefix}/{collection}-{date}-{str(seq_num).zfill(3)}&#34;</code></pre>
+</details>
+</dd>
+<dt id="doiowa.md.BaseMetadata.to_xml"><code class="name flex">
+<span>def <span class="ident">to_xml</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Generate XML from attributes.</p>
+<p>Generates XML represented as an lxml.etree base on available
+attributes.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>lxml.etree</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def to_xml(self):
+    &#34;&#34;&#34;Generate XML from attributes.
+
+    Generates XML represented as an lxml.etree base on available
+    attributes.
+
+    Returns
+    -------
+    lxml.etree
+    &#34;&#34;&#34;
+    if self.type == &#34;report&#34;:
+        root = etree.fromstring(
+            &#39;&lt;report-paper&gt;&lt;report-paper_metadata language=&#34;en&#34;&gt;&lt;/report-paper_metadata&gt;&lt;/report-paper&gt;&#39;
+        )
+
+    contributors = self._xml_contributors()
+    if contributors is not None:
+        root[0].append(contributors)
+
+    root[0].append(self._xml_title())
+    root[0].append(self._xml_edition_number())
+    root[0].append(self._xml_publication_date())
+    root[0].append(self._xml_publisher())
+    root[0].append(self._xml_institution())
+    root[0].append(self._xml_doi_data())
+
+    return root</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="doiowa.md.CrossrefXML"><code class="flex name class">
+<span>class <span class="ident">CrossrefXML</span></span>
+</code></dt>
+<dd>
+<section class="desc"><p>Object for root Crossref XML.</p>
+<p>This object includes methods to build a valid Crossref
+metadata deposit XML file from doiowa.md.Depositor and
+doiowa.md.BaseMetadata provided lxml.etrees.</p>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>root</code></strong> :&ensp;<code>lxml.etree</code></dt>
+<dd>XML root element and body element that conform to the Crossref
+metadata deposit metadata schema, version 4.4.1.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class CrossrefXML:
+    &#34;&#34;&#34;Object for root Crossref XML.
+
+    This object includes methods to build a valid Crossref
+    metadata deposit XML file from doiowa.md.Depositor and
+    doiowa.md.BaseMetadata provided lxml.etrees.
+
+    Attributes
+    ----------
+    root : lxml.etree
+        XML root element and body element that conform to the Crossref
+        metadata deposit metadata schema, version 4.4.1.
+
+    &#34;&#34;&#34;
+
+    def __init__(self):
+        self.root = etree.fromstring(
+            b&#34;&#34;&#34;&lt;?xml version=&#34;1.0&#34; encoding=&#34;UTF-8&#34;?&gt;
+&lt;doi_batch xmlns=&#34;http://www.crossref.org/schema/4.4.1&#34;
+           xmlns:xsi=&#34;http://www.w3.org/2001/XMLSchema-instance&#34; version=&#34;4.4.1&#34;
+           xsi:schemaLocation=&#34;http://www.crossref.org/schema/4.4.1  http://data.crossref.org/schemas/crossref4.4.1.xsd&#34;&gt;
+    &lt;body&gt;&lt;/body&gt;
+&lt;/doi_batch&gt;&#34;&#34;&#34;
+        )
+
+    def insert_depositor(self, depositor_xml):
+        &#34;&#34;&#34;Adds depositor metadata to CrossrefXML.root.
+
+        Add the lxml.etree from doiowa.md.Depositor.to_xml()
+        to CrossrefXML.root.
+
+        Parameters
+        ----------
+        depositor_xml : lxml.etree
+            XML head element with depositor child element to insert
+            into first child position of doi_batch element.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.root.insert(0, depositor_xml)
+
+    def insert_item_metadata(self, md):
+        &#34;&#34;&#34;Adds digital object metadata to body element in CrossrefXML.root.
+
+        Adds the lxml.etree from doiowa.md.BaseMetadata.to_xml() to
+        CrossrefXML.root.
+
+
+        Parameters:
+        -----------
+        md : lmxl.etree
+            XML item metadata to insert into the body element of
+            doi_batch.
+
+        Returns
+        -------
+        None
+        &#34;&#34;&#34;
+        self.root[-1].append(md)
+
+    def to_xml(self):
+        &#34;&#34;&#34;Returns self.root lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        return self.root</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="doiowa.md.CrossrefXML.insert_depositor"><code class="name flex">
+<span>def <span class="ident">insert_depositor</span></span>(<span>self, depositor_xml)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Adds depositor metadata to CrossrefXML.root.</p>
+<p>Add the lxml.etree from doiowa.md.Depositor.to_xml()
+to CrossrefXML.root.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>depositor_xml</code></strong> :&ensp;<code>lxml.etree</code></dt>
+<dd>XML head element with depositor child element to insert
+into first child position of doi_batch element.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def insert_depositor(self, depositor_xml):
+    &#34;&#34;&#34;Adds depositor metadata to CrossrefXML.root.
+
+    Add the lxml.etree from doiowa.md.Depositor.to_xml()
+    to CrossrefXML.root.
+
+    Parameters
+    ----------
+    depositor_xml : lxml.etree
+        XML head element with depositor child element to insert
+        into first child position of doi_batch element.
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    self.root.insert(0, depositor_xml)</code></pre>
+</details>
+</dd>
+<dt id="doiowa.md.CrossrefXML.insert_item_metadata"><code class="name flex">
+<span>def <span class="ident">insert_item_metadata</span></span>(<span>self, md)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Adds digital object metadata to body element in CrossrefXML.root.</p>
+<p>Adds the lxml.etree from doiowa.md.BaseMetadata.to_xml() to
+CrossrefXML.root.</p>
+<h2 id="parameters">Parameters:</h2>
+<p>md : lmxl.etree
+XML item metadata to insert into the body element of
+doi_batch.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>None</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def insert_item_metadata(self, md):
+    &#34;&#34;&#34;Adds digital object metadata to body element in CrossrefXML.root.
+
+    Adds the lxml.etree from doiowa.md.BaseMetadata.to_xml() to
+    CrossrefXML.root.
+
+
+    Parameters:
+    -----------
+    md : lmxl.etree
+        XML item metadata to insert into the body element of
+        doi_batch.
+
+    Returns
+    -------
+    None
+    &#34;&#34;&#34;
+    self.root[-1].append(md)</code></pre>
+</details>
+</dd>
+<dt id="doiowa.md.CrossrefXML.to_xml"><code class="name flex">
+<span>def <span class="ident">to_xml</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns self.root lxml.etree.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>lxml.etree</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def to_xml(self):
+    &#34;&#34;&#34;Returns self.root lxml.etree.
+
+    Returns
+    -------
+    lxml.etree
+    &#34;&#34;&#34;
+    return self.root</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="doiowa.md.Depositor"><code class="flex name class">
+<span>class <span class="ident">Depositor</span></span>
+<span>(</span><span>doi_batch_id, timestamp, depositor_name='Iowa State University. Library. Metadata Services Department', email_address='metadata@iastate.edu', registrant='Iowa State University. Library')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Crossref depositor metadata.</p>
+<p>This object contains the metadata for the Crossref metadata
+deposit schema's depositor element and associated children, and
+a to_xml method to return an lxml.etree of the depositor metadata
+that can be inserted into a doiowa.md.CrossrefXML object to
+build a valid Crossref XML document.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>doi_batch_id</code></strong> :&ensp;<code>str</code> or <code>int</code></dt>
+<dd>Batch ID for this DOI registration submission. Must be
+unique from all other batch IDs used. We currently use a
+timestamp with the format YYYYMMDDHHMMSS.</dd>
+<dt><strong><code>timestamp</code></strong> :&ensp;<code>int</code></dt>
+<dd>Timestamp for the submission. Currently this uses the
+format YYYYMMDDHHMMSS.</dd>
+<dt><strong><code>depositor_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the organization depositing the DOI metadata.
+Defaults to 'Iowa State University. Library. Metadata
+Services Department'.</dd>
+<dt><strong><code>email_address</code></strong> :&ensp;<code>str</code></dt>
+<dd>The email address of the depositor. Defaults to
+'metadata@iastate.edu'.</dd>
+<dt><strong><code>registrant</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the organization that owns the information
+being registered. Defaults to 'Iowa State University. Library'.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>doi_batch_id</code></strong> :&ensp;<code>str</code> or <code>int</code></dt>
+<dd>Batch ID for this DOI registration submission.</dd>
+<dt><strong><code>timestamp</code></strong> :&ensp;<code>int</code></dt>
+<dd>Timestamp for the submission.</dd>
+<dt><strong><code>depositor_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the organization depositing the DOI metadata.</dd>
+<dt><strong><code>email_address</code></strong> :&ensp;<code>str</code></dt>
+<dd>The email address of the depositor.</dd>
+<dt><strong><code>registrant</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the organization that owns the information
+being registered.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class Depositor:
+    &#34;&#34;&#34;Crossref depositor metadata.
+
+    This object contains the metadata for the Crossref metadata
+    deposit schema&#39;s depositor element and associated children, and
+    a to_xml method to return an lxml.etree of the depositor metadata
+    that can be inserted into a doiowa.md.CrossrefXML object to 
+    build a valid Crossref XML document.
+
+    Parameters
+    ----------
+    doi_batch_id : str or int
+        Batch ID for this DOI registration submission. Must be
+        unique from all other batch IDs used. We currently use a
+        timestamp with the format YYYYMMDDHHMMSS.
+    timestamp : int
+        Timestamp for the submission. Currently this uses the
+        format YYYYMMDDHHMMSS.
+    depositor_name : str
+        The name of the organization depositing the DOI metadata.
+        Defaults to &#39;Iowa State University. Library. Metadata
+        Services Department&#39;.
+    email_address : str
+        The email address of the depositor. Defaults to 
+        &#39;metadata@iastate.edu&#39;.
+    registrant : str
+        The name of the organization that owns the information
+        being registered. Defaults to &#39;Iowa State University. Library&#39;.
+
+    Attributes
+    ----------
+    doi_batch_id : str or int
+        Batch ID for this DOI registration submission.
+    timestamp : int
+        Timestamp for the submission.
+    depositor_name : str
+        The name of the organization depositing the DOI metadata.
+    email_address : str
+        The email address of the depositor.
+    registrant : str
+        The name of the organization that owns the information
+        being registered.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        doi_batch_id,
+        timestamp,
+        depositor_name=&#34;Iowa State University. Library. Metadata Services Department&#34;,
+        email_address=&#34;metadata@iastate.edu&#34;,
+        registrant=&#34;Iowa State University. Library&#34;,
+    ):
+        self.doi_batch_id = doi_batch_id
+        self.timestamp = timestamp
+        self.depositor_name = depositor_name
+        self.email_address = email_address
+        self.registrant = registrant
+
+    def to_xml(self):
+        &#34;&#34;&#34;Returns self.root lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        &#34;&#34;&#34;
+        head = E.head(
+            E.doi_batch_id(self.doi_batch_id),
+            E.timestamp(self.timestamp),
+            E.depositor(
+                E.depositor_name(self.depositor_name),
+                E.email_address(self.email_address),
+            ),
+            E.registrant(self.registrant),
+        )
+
+        return head</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="doiowa.md.Depositor.to_xml"><code class="name flex">
+<span>def <span class="ident">to_xml</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns self.root lxml.etree.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>lxml.etree</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def to_xml(self):
+    &#34;&#34;&#34;Returns self.root lxml.etree.
+
+    Returns
+    -------
+    lxml.etree
+    &#34;&#34;&#34;
+    head = E.head(
+        E.doi_batch_id(self.doi_batch_id),
+        E.timestamp(self.timestamp),
+        E.depositor(
+            E.depositor_name(self.depositor_name),
+            E.email_address(self.email_address),
+        ),
+        E.registrant(self.registrant),
+    )
+
+    return head</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="doiowa" href="index.html">doiowa</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="doiowa.md.add_dois_to_md_objects" href="#doiowa.md.add_dois_to_md_objects">add_dois_to_md_objects</a></code></li>
+<li><code><a title="doiowa.md.get_doi_batch_id_from_xml" href="#doiowa.md.get_doi_batch_id_from_xml">get_doi_batch_id_from_xml</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="doiowa.md.BaseMetadata" href="#doiowa.md.BaseMetadata">BaseMetadata</a></code></h4>
+<ul class="">
+<li><code><a title="doiowa.md.BaseMetadata.generate_doi" href="#doiowa.md.BaseMetadata.generate_doi">generate_doi</a></code></li>
+<li><code><a title="doiowa.md.BaseMetadata.to_xml" href="#doiowa.md.BaseMetadata.to_xml">to_xml</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="doiowa.md.CrossrefXML" href="#doiowa.md.CrossrefXML">CrossrefXML</a></code></h4>
+<ul class="">
+<li><code><a title="doiowa.md.CrossrefXML.insert_depositor" href="#doiowa.md.CrossrefXML.insert_depositor">insert_depositor</a></code></li>
+<li><code><a title="doiowa.md.CrossrefXML.insert_item_metadata" href="#doiowa.md.CrossrefXML.insert_item_metadata">insert_item_metadata</a></code></li>
+<li><code><a title="doiowa.md.CrossrefXML.to_xml" href="#doiowa.md.CrossrefXML.to_xml">to_xml</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="doiowa.md.Depositor" href="#doiowa.md.Depositor">Depositor</a></code></h4>
+<ul class="">
+<li><code><a title="doiowa.md.Depositor.to_xml" href="#doiowa.md.Depositor.to_xml">to_xml</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
