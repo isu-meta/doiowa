@@ -7,11 +7,11 @@ import os
 import re
 from sys import argv
 
-import pandas as pd
-import requests
 from crossref.restful import Works
 from lxml import etree as et
 from lxml.etree import parse
+import pandas as pd
+import requests
 from tika import parser
 
 
