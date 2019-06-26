@@ -9,11 +9,31 @@ and portable. During this process this README file and the documentation
 it links to may fall out of sync with actual usage. Efforts will be made to
 keep this document as current as possible.
 
+## Requirements
+
+Requires [Python](https://www.python.org/) version 3.7 or higher.
+
+### Python libraries
+
+- [crossrefapi](https://github.com/fabiobatalha/crossrefapi)
+- [lxml](https://lxml.de/)
+- [pandas](http://pandas.pydata.org/)
+- [requests](https://2.python-requests.org/en/master/)
+- [tika](https://github.com/chrismattmann/tika-python)
+
+### Non-Python Requirements
+
+**Note:** The following non-Python requirements are only needed if you're
+working with bepress Digital Commons collections.
+
+- [Java 7+](https://www.java.com/en/) (Required by tika)
+- [SaxonHE 9.8+ for the .NET platform](https://www.saxonica.com/download/dotnet.xml)
+
 ## Getting Started
 
 Clone the repository and create a virtual environment.
 
-``` {.sourceCode .console}
+```console
 C:\your\dir> git clone https://github.com/wryan14/doiowa.git
 C:\your\dir\doiowa> cd doiowa
 C:\your\dir\doiowa> python -m venv "doi_env"
@@ -91,7 +111,7 @@ with the target bepress_batch XSL.
 
 Run the code
 
-``` {.sourceCode .console}
+```console
 C:\your\dir\doiowa> python harvester.py
 ```
 
@@ -99,7 +119,7 @@ C:\your\dir\doiowa> python harvester.py
 
 Upload to CrossRef
 
-``` {.sourceCode .console}
+```console
 C:\your\dir\doiowa> python doiowa.py register path\to\file.xml username password
 ```
 
