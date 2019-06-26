@@ -31,17 +31,41 @@ working with bepress Digital Commons collections.
 
 ## Getting Started
 
-Clone the repository and create a virtual environment.
+To get started, download doiowa, create a virtual environment for it, and
+install external requirements.
+
+### Downloading/Cloning this Repository
+
+[Download](https://github.com/isu-meta/doiowa/archive/master.zip) or clone
+the repository and create a virtual environment.
+
+If you [download doiowa](https://github.com/isu-meta/doiowa/archive/master.zip),
+extract the zip file and go to the doiowa directory via the Command Prompt.
+
+To clone the repository using git, run the following commands in the Command
+Prompt.
 
 ```console
-C:\your\dir> git clone https://github.com/wryan14/doiowa.git
-C:\your\dir\doiowa> cd doiowa
+C:\your\dir> git clone https://github.com/isu-meta/doiowa.git
+C:\your\dir\> cd doiowa
+```
+
+### Creating a Virtual Environment and Installing requirements
+
+To finish setting up doiowa, run the following commands in the Command Prompt.
+
+```console
 C:\your\dir\doiowa> python -m venv "doi_env"
 C:\your\dir\doiowa> doi_env\Scripts\activate
 C:\your\dir\doiowa> pip install -r requirements.txt
 ```
 
 ## Basic Usage
+
+_**Note:** This section covers the workflow used for working with
+collections other than Digital Commons collections. To work with
+Digital Commons collections, see the section below **Set Up and Workflow
+for Creating DOIs for Digital Commons Collections**_
 
 To harvest metadata from a source and generate an XML file to submit
 to the Crossref API, use the `harvest` command followed by the target
@@ -78,7 +102,11 @@ or:
 C:\your\dir\doiowa> python doiowa.py check new-dois-0001 username password
 ```
 
-## Set and Workflow for Creating DOIs for Digital Commons Collections
+## Set Up and Workflow for Creating DOIs for Digital Commons Collections
+
+The workflow for working with Digital Commons collections differs greatly
+from working with other collections. Follow the instructions below to work
+with Digital Commons collections.
 
 ### Step 1
 
