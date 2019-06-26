@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 __author__ = "Ryan Wolfslayer, Iowa State University"
 
 # Program to assist with collecting variables for harvesting OAI
@@ -103,11 +103,6 @@ class OAIXML(object):
         else:
             self.oai_urls = None
 
-        try:
-            dire = str(self.set)
-        except Exception:
-            dire = str("default")
-
         createdir("outfiles/directharvest")
         initfile = "outfiles/directharvest/01_initialFile.xml"
         self.initdoc.write(
@@ -145,14 +140,12 @@ def createdir(name):
 
 def crosswalk(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(
+    subprocess.run(
         [
-            "java",
-            "-jar",
-            "{}/transformations/saxon9.jar".format(current_path),
+            "Transform",
             "-o:{}/{}".format(current_path, outfile),
             "-s:{}/{}".format(current_path, infile),
-            "{}/transformations/iacrossref-v12.xsl".format(current_path),
+            "-xsl:{}/transformations/iacrossref-v12.xsl".format(current_path),
         ],
         shell=True,
     )
@@ -160,14 +153,12 @@ def crosswalk(infile, outfile):
 
 def remtag(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(
+    subprocess.run(
         [
-            "java",
-            "-jar",
-            "{}/transformations/saxon9.jar".format(current_path),
+            "Transform",
             "-o:{}/{}".format(current_path, outfile),
             "-s:{}/{}".format(current_path, infile),
-            "{}/transformations/removetag.xsl".format(current_path),
+            "-xsl:{}/transformations/removetag.xsl".format(current_path),
         ],
         shell=True,
     )
@@ -175,14 +166,12 @@ def remtag(infile, outfile):
 
 def conference_tags(infile, outfile):
     current_path = os.getcwd()
-    subprocess.call(
+    subprocess.run(
         [
-            "java",
-            "-jar",
-            "{}/transformations/saxon9.jar".format(current_path),
+            "Transform",
             "-o:{}/{}".format(current_path, outfile),
             "-s:{}/{}".format(current_path, infile),
-            "{}/transformations/c_tags.xsl".format(current_path),
+            "-xsl:{}/transformations/c_tags.xsl".format(current_path),
         ],
         shell=True,
     )
@@ -190,14 +179,12 @@ def conference_tags(infile, outfile):
 
 def merge(root=True, filename="default.xml"):
     current_path = os.getcwd()
-    subprocess.call(
+    subprocess.run(
         [
-            "java",
-            "-jar",
-            "{}/transformations/saxon9.jar".format(current_path),
+            "Transform",
             "-o:{}".format(filename),
             "-s:{}/outfiles/directharvest/01_initialFile.xml".format(current_path),
-            "{}/transformations/merge.xsl".format(current_path),
+            "-xsl:{}/transformations/merge.xsl".format(current_path),
         ],
         shell=True,
     )
@@ -209,14 +196,12 @@ def merge(root=True, filename="default.xml"):
 
 def nodups(filename):
     current_path = os.getcwd()
-    subprocess.call(
+    subprocess.run(
         [
-            "java",
-            "-jar",
-            "{}/transformations/saxon9.jar".format(current_path),
+            "Transform",
             "-o:{}".format(filename.replace(".xml", "_dedup.xml")),
             "-s:{}".format(filename),
-            "{}/transformations/merge.xsl".format(current_path),
+            "-xsl:{}/transformations/merge.xsl".format(current_path),
         ],
         shell=True,
     )
@@ -237,26 +222,22 @@ def typesplit(infile, outfile, type=None):
     current_path = os.getcwd()
 
     if type == "rtd":
-        subprocess.call(
+        subprocess.run(
             [
-                "java",
-                "-jar",
-                "{}/transformations/saxon9.jar".format(current_path),
+                "Transform",
                 "-o:{}".format(outfile),
                 "-s:{}".format(infile),
-                "{}/transformations/rtd_split.xsl".format(current_path),
+                "-xsl:{}/transformations/rtd_split.xsl".format(current_path),
             ],
             shell=True,
         )
     elif type == "etd":
-        subprocess.call(
+        subprocess.run(
             [
-                "java",
-                "-jar",
-                "{}/transformations/saxon9.jar".format(current_path),
+                "Transform",
                 "-o:{}".format(outfile),
                 "-s:{}".format(infile),
-                "{}/transformations/etds_split.xsl".format(current_path),
+                "-xsl:{}/transformations/etds_split.xsl".format(current_path),
             ],
             shell=True,
         )
