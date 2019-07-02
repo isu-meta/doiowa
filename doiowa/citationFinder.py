@@ -9,6 +9,7 @@ import re
 from crossref.restful import Works
 from lxml import etree as et
 from lxml.etree import parse
+import pandas as pd
 import requests
 from tika import parser
 
