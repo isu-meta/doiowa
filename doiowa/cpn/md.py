@@ -8,10 +8,10 @@ import re
 from PyPDF2 import PdfFileReader
 import requests
 
-from doiowa.md import BaseMetadata
+from doiowa.md import ItemMetadata
 
 
-class Metadata(BaseMetadata):
+class Metadata(ItemMetadata):
     """Metadata class for Crop Protection Network publications.
 
     This class collects all the metadata needed to create a DOI for 
@@ -56,7 +56,7 @@ class Metadata(BaseMetadata):
         The URL for the digital object.
     media_type : str
         Publication medium. Valid values are: 'print' or 'electronic'.
-    type_ : str
+    kind : str
         Digital object's publication type. Valid values are : 'journal',
         'journal article', 'book', 'book chapter', 'reference work',
         'conference proceedings', 'report', 'standard', 'dataset',
@@ -122,7 +122,7 @@ class Metadata(BaseMetadata):
         self.institution_department = ""
         self.doi = ""
         self.media_type = "electronic"
-        self.type = "report"
+        self.kind = "report"
 
     def _download_pdf(self, pdf, write_out=False):
         """Downloads a PDF file from a URL.

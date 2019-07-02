@@ -214,93 +214,384 @@ class Depositor:
 
 
 class BaseMetadata:
-    """Foundation of all diowa Metadata classes.
+    """Foundation of all metadata classes. Includes methods used by both
+    AggregateMetadata and ItemMetadata."""
 
-    This class collects all the metadata needed to create a DOI for an
-    object and produces the XML for the digital object.
+    def __init__(
+        self,
+        *,
+        contributors=[],
+        date={"year": "0001", "month": "01", "day": "01"},
+        doi="",
+        edition_number=0,
+        media_type="",
+        publisher_name="",
+        publisher_place="",
+        resource="",
+        title="",
+    ):
+        self.contributors = contributors
+        self.date = date
+        self.doi = doi
+        self.edition_number = edition_number
+        self.media_type = media_type
+        self.publisher_name = publisher_name
+        self.publisher_place = publisher_place
+        self.resource = resource
+        self.title = title
 
-    Parameters
-    ----------
-    contributors : list of dict
-        The digital object's authors. Dict take the form of 
-        {"given_name": "name", "surname": "name"} or
-        {"organization": "name"}.
-    title :str
-        Title of the digital object.
-    edition_number : int
-        Edition number of the object. Defaults to 0.
-    month : str
-        Zero-padded numerical representation of the month of publication.
-        Defaults to "01".
-    day : str
-        Zero-padded numerical representation of the day of publication.
-        Defaults to "01".
-    year : str
-        Zero-padded numerical representation of the year of publication.
-        Defaults to "0001".
-    publisher_name : str
-        Name of the publisher.
-    publisher_place : str
-        Location of the publisher.
-    institution_name : str
-        Name of the organization that hosted or sponsored the digital object.
-    institution_acronym : str
-        Acronym used to refer to the organization that hosted or sponsored
-        the digital object.
-    institution_place : str
-        The location of the organization that hosted or sponsored the digital
-        object.
-    institution_department :str
-        The department that the creators of the digital object worked in. 
-    doi : str
-        Digital Object Identifier.
-    resource: str
-        The URL for the digital object.
-    media_type : str
-        Publication medium. Valid values are: 'print' or 'electronic'.
-    type_ : str
-        Digital object's publication type. Valid values are : 'journal',
-        'journal article', 'book', 'book chapter', 'reference work',
-        'conference proceedings', 'report', 'standard', 'dataset',
-        'dissertation', 'preprint', 'peer review', 'component', and 'grant'.
+    def _xml_contributors(self):
+        """Returns contributor XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        contributors = E.contributors()
+
+        if self.contributors:
+            for i, c in enumerate(self.contributors):
+                if i == 0:
+                    seq = "first"
+                else:
+                    seq = "additional"
+
+                try:
+                    c_xml = E.person_name(
+                        E.given_name(c["given_name"]),
+                        E.surname(c["surname"]),
+                        sequence=seq,
+                        contributor_role="author",
+                    )
+                except KeyError:
+                    c_xml = E.organization(
+                        c["organization"], sequence=seq, contributor_role="author"
+                    )
+
+                contributors.append(c_xml)
+
+                return contributors
+        else:
+            return None
+
+    def _xml_doi_data(self):
+        """Returns DOI data XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        doi_data = E.doi_data(E.doi(self.doi), E.resource(self.resource))
+        return doi_data
+
+    def _xml_edition_number(self):
+        """Returns edition number XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        edition_number = E.edition_number(str(self.edition_number))
+        return edition_number
+
+    def _xml_publication_date(self):
+        """Returns publication date XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        publication_date = E.publication_date(
+            E.month(self.date["month"]),
+            E.day(self.date["day"]),
+            E.year(self.date["year"]),
+            media_type=self.media_type,
+        )
+
+        return publication_date
+
+    def _xml_publisher(self):
+        """Returns publisher XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        publisher = E.publisher(
+            E.publisher_name(self.publisher_name),
+            E.publisher_place(self.publisher_place),
+        )
+
+        return publisher
+
+    def _xml_title(self):
+        """Returns title XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        title = E.titles(E.title(self.title))
+
+        return title
+
+
+class AggregateMetadata(BaseMetadata):
+    """Foundation of aggregating parent objects such as conference
+    proceedings, books with subsections needing their own DOIs and journal
+    issues.
     """
 
     def __init__(
         self,
+        *,
+        conference_acronym="",
+        conference_end_date={"year": "0001", "month": "01", "day": "01"},
+        conference_location="",
+        conference_name="",
+        conference_number=0,
+        conference_sponsor="",
+        conference_start_date={"year": "0001", "month": "01", "day": "01"},
+        conference_theme="",
         contributors=[],
-        title="",
+        date={"year": "0001", "month": "01", "day": "01"},
+        doi="",
         edition_number=0,
-        month="01",
-        day="01",
-        year="0001",
+        isbn="",
+        kind="",
+        language="en",
+        media_type="",
+        proceedings_subject="",
+        proceedings_title="",
         publisher_name="",
         publisher_place="",
-        institution_name="",
-        institution_acronym="",
-        institution_place="",
-        institution_department="",
-        doi="",
         resource="",
-        media_type="",
-        type_="",
+        title="",
     ):
+        self.conference_acronym = conference_acronym
+        self.conference_end_date = conference_end_date
+        self.conference_location = conference_location
+        self.conference_name = conference_name
+        self.conference_number = conference_number
+        self.conference_sponsor = conference_sponsor
+        self.conference_start_date = conference_start_date
+        self.conference_theme = conference_theme
         self.contributors = contributors
-        self.title = title
+        self.date = date
+        self.doi = doi
         self.edition_number = edition_number
-        self.month = month
-        self.day = day
-        self.year = year
+        self.isbn = isbn
+        self.kind = kind
+        self.language = language
+        self.media_type = media_type
+        self.proceedings_subject = proceedings_subject
+        self.proceedings_title = proceedings_title
         self.publisher_name = publisher_name
         self.publisher_place = publisher_place
+        self.resource = resource
+        self.title = title
+
+    def _xml_conference_date(self):
+        """Returns conference start and end date XML as lxml.etree.
+        
+        Returns
+        -------
+        lxml.etree
+        """
+        conference_date = E.conference_date(
+            start_month=self.conference_start_date["month"],
+            start_year=self.conference_start_date["year"],
+            start_day=self.conference_start_date["day"],
+            end_month=self.conference_end_date["month"],
+            end_year=self.conference_end_date["year"],
+            end_day=self.conference_end_date["day"],
+        )
+
+        return conference_date
+
+    def _xml_event_metadata(self):
+        """Returns event metadata XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        event_md = E.eventmetadata(E.conference_name(self.conference_name))
+
+        if self.conference_theme:
+            event_md.append(E.conference_theme(self.conference_theme))
+
+        if self.conference_acronym:
+            event_md.append(E.conference_acronym(self.conference_acronym))
+
+        if self.conference_sponsor:
+            event_md.append(E.conference_sponsor)
+
+        if self.conference_number:
+            event_md.append(E.conference_number(str(self.conference_number)))
+
+        event_md.append(self._xml_conference_date())
+
+        return event_md
+
+    def _xml_proceedings_metadata(self):
+        """Returns proceedings metadata XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        proceedings_md = E.proceedings_metadata(
+            E.proceedings_title(self.proceedings_title), language=self.language
+        )
+
+        if self.proceedings_subject:
+            proceedings_md.append(self.proceedings_subject)
+
+        proceedings_md.append(self._xml_publisher())
+        proceedings_md.append(self._xml_publication_date())
+
+        if self.isbn:
+            proceedings_md.append(E.isbn(self.isbn))
+        else:
+            proceedings_md.append(E.noisbn("simple series"))
+
+        if self.doi:
+            proceedings_md.append(self._xml_doi_data())
+
+        return proceedings_md
+
+    def to_xml(self):
+        if self.kind == "proceedings":
+            root = E.conference()
+
+            conference_contributors = self._xml_contributors()
+            if conference_contributors is not None:
+                root.append(conference_contributors)
+
+            root.append(self._xml_event_metadata())
+            root.append(self._xml_proceedings_metadata())
+
+        return root
+
+
+class ItemMetadata(BaseMetadata):
+    """Foundation of all doiowa item-level Metadata classes.
+
+    This class collects all the metadata needed to create a DOI for an
+    object and produces the XML for the digital object. Use class for
+    monographs and other non-aggregate publications such as reports, as well
+    as 
+    """
+
+    def __init__(
+        self,
+        *,
+        abstract="",
+        citation_list=[],
+        component_list=[],
+        contributors=[],
+        date={"year": "0001", "month": "01", "day": "01"},
+        doi="",
+        edition_number=0,
+        kind="",
+        institution_acronym="",
+        institution_department="",
+        institution_name="",
+        institution_place="",
+        language="en",
+        media_type="",
+        pages=[],
+        publication_type="full_text",
+        publisher_name="",
+        publisher_place="",
+        resource="",
+        title="",
+    ):
+        self.abstract = abstract
+        self.citation_list = citation_list
+        self.component_list = component_list
+        self.contributors = contributors
+        self.date = date
+        self.doi = doi
+        self.edition_number = edition_number
         self.institution_name = institution_name
         self.institution_place = institution_place
         self.institution_acronym = institution_acronym
         self.institution_department = institution_department
-        self.doi = doi
-        self.resource = resource
+        self.kind = kind
+        self.language = language
         self.media_type = media_type
-        self.type = type_
+        self.pages = pages
+        self.publication_type = publication_type
+        self.publisher_name = publisher_name
+        self.publisher_place = publisher_place
+        self.resource = resource
         self.timestamp = datetime.datetime.now().isoformat()
+        self.title = title
+
+    def _xml_citation_list(self):
+        pass
+
+    def _xml_component_list(self):
+        pass
+
+    def _xml_conference_paper(self):
+        root = E.conference_paper(publication_type=self.publication_type)
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root.append(self._xml_contributors())
+        root.append(self._xml_title())
+        root.append(self._xml_publication_date())
+        if self.pages:
+            root.append(self._xml_pages())
+        if self.citation_list:
+            root.append(self._xml_citation_list())
+        if self.component_list:
+            root.append(self._xml_component_list())
+
+        return root
+
+    def _xml_institution(self):
+        """Returns institution XML as lxml.etree.
+
+        Returns
+        -------
+        lxml.etree
+        """
+        institution = E.institution(E.institution_name(self.institution_name))
+
+        if self.institution_acronym:
+            institution.append(E.institution_acronym(self.institution_acronym))
+
+        institution.append(E.institution_place(self.institution_place))
+
+        if self.institution_department:
+            institution.append(E.institution_department(self.institution_department))
+
+        return institution
+
+    def _xml_pages(self):
+        pages = E.pages(E.first_page(self.pages[0]), E.last_page(self.pages[1]))
+        return pages
+
+    def _xml_report(self):
+        root = etree.fromstring(
+            f'<report-paper><report-paper_metadata language="{self.language}"></report-paper_metadata></report-paper>'
+        )
+
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root[0].append(contributors)
+
+        root[0].append(self._xml_title())
+        root[0].append(self._xml_edition_number())
+        root[0].append(self._xml_publication_date())
+        root[0].append(self._xml_publisher())
+        root[0].append(self._xml_institution())
+        root[0].append(self._xml_doi_data())
+
+        return root
 
     def generate_doi(self, prefix, collection, seq_num):
         """Generate the DOI for the item.
@@ -343,135 +634,10 @@ class BaseMetadata:
         -------
         lxml.etree
         """
-        if self.type == "report":
-            root = etree.fromstring(
-                '<report-paper><report-paper_metadata language="en"></report-paper_metadata></report-paper>'
-            )
 
-        contributors = self._xml_contributors()
-        if contributors is not None:
-            root[0].append(contributors)
-
-        root[0].append(self._xml_title())
-        root[0].append(self._xml_edition_number())
-        root[0].append(self._xml_publication_date())
-        root[0].append(self._xml_publisher())
-        root[0].append(self._xml_institution())
-        root[0].append(self._xml_doi_data())
+        if self.kind == "report":
+            root = self._xml_report()
+        elif self.kind == "proceedings":
+            root = self._xml_conference_paper()
 
         return root
-
-    def _xml_contributors(self):
-        """Returns contributor XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        contributors = E.contributors()
-
-        if self.contributors:
-            for i, c in enumerate(self.contributors):
-                if i == 0:
-                    seq = "first"
-                else:
-                    seq = "additional"
-
-                try:
-                    c_xml = E.person_name(
-                        E.given_name(c["given_name"]),
-                        E.surname(c["surname"]),
-                        sequence=seq,
-                        contributor_role="author",
-                    )
-                except KeyError:
-                    c_xml = E.organization(
-                        c["organization"], sequence=seq, contributor_role="author"
-                    )
-
-                contributors.append(c_xml)
-
-                return contributors
-        else:
-            return None
-
-    def _xml_title(self):
-        """Returns title XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        title = E.titles(E.title(self.title))
-
-        return title
-
-    def _xml_edition_number(self):
-        """Returns edition number XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        edition_number = E.edition_number(str(self.edition_number))
-        return edition_number
-
-    def _xml_publication_date(self):
-        """Returns publication date XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        publication_date = E.publication_date(
-            E.month(self.month),
-            E.day(self.day),
-            E.year(self.year),
-            media_type=self.media_type,
-        )
-
-        return publication_date
-
-    def _xml_publisher(self):
-        """Returns publisher XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        publisher = E.publisher(
-            E.publisher_name(self.publisher_name),
-            E.publisher_place(self.publisher_place),
-        )
-
-        return publisher
-
-    def _xml_institution(self):
-        """Returns institution XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        institution = E.institution(E.institution_name(self.institution_name))
-
-        if self.institution_acronym:
-            institution.append(E.institution_acronym(self.institution_acronym))
-
-        institution.append(E.institution_place(self.institution_place))
-
-        if self.institution_department:
-            institution.append(E.institution_department(self.institution_department))
-
-        return institution
-
-    def _xml_doi_data(self):
-        """Returns DOI data XML as lxml.etree.
-
-        Returns
-        -------
-        lxml.etree
-        """
-        doi_data = E.doi_data(E.doi(self.doi), E.resource(self.resource))
-
-        return doi_data
