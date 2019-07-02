@@ -8,7 +8,9 @@ engine = create_engine(DB_CONN)
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
+
 class DoiJson(Base):
+    __tablename__ = "doi_json"
     doi = Column(String(50), primary_key=True)
     json = Column(JSON)
 
