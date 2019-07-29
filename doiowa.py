@@ -43,10 +43,15 @@ from doiowa import cpn, crossref, PREFIX
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", help="Accepted arguments: harvest, register, check")
+    parser.add_argument(
+        "command", 
+        help="Accepted arguments: generate, harvest, register, check"
+    )
     parser.add_argument(
         "target",
-        help="""Accepted arguments after 'harvest': cpn.
+        help="""Accepted arguments after 'generate': cpn. 'generate' also
+    requires the '--sources' argument.
+    Accepted arguments after 'harvest': cpn.
     Accepted arguments after 'register': An XML file path.
     Accepted arguments after 'check': An XML file name or a DOI batch ID.""",
     )
@@ -65,24 +70,31 @@ if __name__ == "__main__":
     number, use this flag followed by the start number you wish to use when
     running a 'register' command.""",
     )
+    parser.add_argument(
+        "--sources",
+        nargs="+",
+        help="""A list of file paths or URLs from which to generate DOI
+    metadata.""",
+    )
 
     args = parser.parse_args()
 
     errors = []
-
     if args.command == "harvest":
-
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         depositor = Depositor(
             timestamp,
             timestamp,
-            "Iowa State University. Library. Metadata Services Department.",
+            "Iowa State University. Library. Metadata Services Department",
             "metadata@iastate.edu",
             "Iowa State University. Library",
         )
 
         if args.target == "cpn":
-            crossref_xml = cpn.harvest.harvest(depositor)
+            if args.sources is not None:
+                crossref_xml = cpn.harvest.harvest(depositor, args.sources)
+            else:
+                crossref_xml = cpn.harvest.harvest(depositor)
 
             if args.out:
                 out_file = args.out

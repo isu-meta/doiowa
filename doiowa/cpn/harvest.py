@@ -40,7 +40,7 @@ def fetch_list_of_publication_urls():
     return pubs
 
 
-def harvest(depositor):
+def harvest(depositor, pub_urls=None):
     """Harvests metadata from CPN publications.
 
     For each publication found on the publications web page, a
@@ -59,7 +59,9 @@ def harvest(depositor):
         A Crossref metadata deposit XML document.
     """
     md_list = []
-    pub_urls = fetch_list_of_publication_urls()
+    if pub_urls is None:
+        pub_urls = fetch_list_of_publication_urls()
+    
     for url in pub_urls:
         try:
             md = Metadata()
