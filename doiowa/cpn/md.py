@@ -35,7 +35,7 @@ class Metadata(ItemMetadata):
         Defaults to "01".
     year : str
         Zero-padded numerical representation of the year of publication.
-        Defaults to "0001".
+        Defaults to "1400".
     publisher_name : str
         Name of the publisher.
     publisher_place : str
@@ -55,7 +55,7 @@ class Metadata(ItemMetadata):
     resource: str
         The URL for the digital object.
     media_type : str
-        Publication medium. Valid values are: 'print' or 'electronic'.
+        Publication medium. Valid values are: 'print', 'online' or 'other'.
     kind : str
         Digital object's publication type. Valid values are : 'journal',
         'journal article', 'book', 'book chapter', 'reference work',
@@ -121,7 +121,7 @@ class Metadata(ItemMetadata):
         self.institution_place = "United States of America"
         self.institution_department = ""
         self.doi = ""
-        self.media_type = "electronic"
+        self.media_type = "online"
         self.kind = "report"
 
     def _download_pdf(self, pdf, write_out=False):
