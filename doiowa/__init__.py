@@ -1,8 +1,7 @@
-"""A library for automating the DOI creation workflow for the Iowa State
-University library's Metadata Services Department."""
+"""A library for automating the DOI creation workflows."""
 __name__ = "doiowa"
-__version__ = "2019-06-24"
-__author__ = "Wesley Teal"
-__email__ = "metadata@iastate.edu"
+__version__ = "2019-10-15 alpha"
+__author__ = ""
+__email__ = ""
 
-PREFIX = "10.31274"
+PREFIX = ""
