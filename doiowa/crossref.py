@@ -1,5 +1,5 @@
 """Functions for working with the Crossref API."""
-from crossref.restful import Depositor, Etiquette
+from crossref.restful import Depositor, Etiquette, Works
 
 from doiowa import __name__, __version__, __author__, __email__
 
@@ -120,3 +120,8 @@ def check_status_by_doi_batch_id(
     response = depositor.request_doi_status_by_batch_id(doi_batch_id, data_type)
 
     return response
+
+
+def get_metadata_by_doi(doi):
+    works = Works()
+    return works.doi(doi)

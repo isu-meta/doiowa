@@ -31,9 +31,12 @@ your Crossref username and password::
 or::
 
     python doiowa.py check new-dois-0001 username password
-"""
 
-__version__ = "2019-06-24"
+To get the current metadata for a DOI use the ``query`` command followed
+by the DOI::
+
+    python doiowa.py query 10.99999/fake-doi-abc-1
+"""
 
 import argparse
 import datetime
@@ -53,7 +56,8 @@ if __name__ == "__main__":
     requires the '--sources' argument.
     Accepted arguments after 'harvest': cpn.
     Accepted arguments after 'register': An XML file path.
-    Accepted arguments after 'check': An XML file name or a DOI batch ID.""",
+    Accepted arguments after 'check': An XML file name or a DOI batch ID.
+    Accepted arguments after 'query': A DOI.""",
     )
     parser.add_argument(
         "credentials", nargs="*", help="Crossref username and password."
@@ -103,6 +107,10 @@ if __name__ == "__main__":
 
             with open(out_file, "w", encoding="utf-8") as fh:
                 fh.write(crossref_xml)
+
+    if args.command == "query":
+        md = crossref.get_metadata_by_doi(args.target)
+        print(md)
 
     if args.command == "register" or args.command == "check":
         if len(args.credentials) != 2:
