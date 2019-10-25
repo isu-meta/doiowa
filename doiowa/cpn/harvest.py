@@ -54,6 +54,9 @@ def harvest(depositor, pub_urls=None):
     depositor : doiowa.md.Depositor
         Depositor metadata object.
 
+    pub_urls : list
+        URLs to generate metdata from.
+
     Returns
     str
         A Crossref metadata deposit XML document.

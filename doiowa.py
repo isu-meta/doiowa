@@ -108,11 +108,11 @@ if __name__ == "__main__":
             with open(out_file, "w", encoding="utf-8") as fh:
                 fh.write(crossref_xml)
 
-    if args.command == "query":
+    elif args.command == "query":
         md = crossref.get_metadata_by_doi(args.target)
         print(md)
 
-    if args.command == "register" or args.command == "check":
+    elif args.command == "register" or args.command == "check":
         if len(args.credentials) != 2:
             parser.error(
                 "Please provide a username followed by a password.\nExample: `doiowa.py register my_file.xml username password`"
