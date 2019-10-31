@@ -3,6 +3,7 @@ import datetime
 
 from lxml import etree
 from lxml.builder import E
+import requests
 
 
 def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
@@ -30,21 +31,21 @@ def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
         md.generate_doi(prefix, collection, n)
 
 
-def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.1"):
+def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.2"):
     """Get the DOI batch ID from an XML file
 
     Extract the DOI batch ID from the provided file. The schema_version
     argument is optional and only needed for working with historical XML
     files. Prior to 2019-06-21, we used version 4.3.7 of the Crossref
-    metadata deposit schema and may have used others before that. We have
-    switched to the current version, 4.4.1.
+    metadata deposit schema and may have used others before that. Prior to
+    2019-10-29, we used 4.4.1. We currently use 4.4.2.
 
     Parameters
     ----------
     xml_file : str
         Path to an XML file.
     schema_version : str
-        Version number for the schema to use. Defaults to '4.4.1'.
+        Version number for the schema to use. Defaults to '4.4.2'.
 
     Returns
     -------
@@ -592,6 +593,68 @@ class ItemMetadata(BaseMetadata):
         root[0].append(self._xml_doi_data())
 
         return root
+
+
+
+
+
+    def from_crossref_dict(self, crossref_dict):
+        contributors = crossref_dict.get("author", [])
+
+        if not len(contributors) == 0:
+            if "given" in contributors[0].keys():
+                for i, c in enumerate(contributors):
+                    contributors[i]["given_name"] = c["given"]
+                    contributors[i]["surname"] = c["family"]
+
+                    del contributors[i]["given"]
+                    del contributors[i]["family"]
+
+        date_list = []
+        publication_date = {"year": "1400", "month": "01", "day": "01"}
+        if "published-online" in crossref_dict.keys():
+            media_type = "electronic"
+            date_list = crossref_dict["published-online"]["date-parts"]
+
+        elif "published-print" in crossref_dict.keys():
+            media_type = "print"
+            date_list = crossref_dict["published-print"]["date-parts"]
+        else:
+            media_type = ""
+
+        if date_list:
+            publication_date["year"], publication_date["month"], publication_date["day"] = date_list
+
+        institution = crossref_dict.get("institution", dict())
+
+        # Need to resolve the doi.org URL to the URL it points to.
+        r = requests.get(crossref_dict["URL"])
+        self.resource = r.url
+
+        self.abstract = crossref_dict.get("abstract", "")
+        self.citation_list = crossref_dict.get("reference", [])
+        self.component_list = crossref_dict.get("component", [])
+        self.contributors = contributors
+        self.date = publication_date
+        self.doi = crossref_dict.get("DOI", "")
+        self.edition_number = crossref_dict.get("edition", 0)
+        self.institution_name = institution.get("name", "")
+        self.institution_place = institution.get("place", [""])[0]
+        self.institution_acronym = institution.get("acronym", [""])[0]
+        self.institution_department = institution.get("department", [""])[0]
+        self.kind = crossref_dict.get("type", "")
+        self.language = crossref_dict.get("language", "en")
+        self.media_type = media_type
+        self.pages = crossref_dict.get("page", "")
+        self.publication_type = "full_text"
+        self.publisher_name = crossref_dict.get("publisher", "")
+        self.publisher_place = crossref_dict.get("publisher-location", "")
+        self.timestamp = datetime.datetime.now().isoformat()
+        self.title = crossref_dict.get("title", [""])[0]
+
+
+
+
 
     def generate_doi(self, prefix, collection, seq_num):
         """Generate the DOI for the item.
