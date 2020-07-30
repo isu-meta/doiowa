@@ -75,16 +75,16 @@ class CrossrefXML:
     ----------
     root : lxml.etree
         XML root element and body element that conform to the Crossref
-        metadata deposit metadata schema, version 4.4.1.
+        metadata deposit metadata schema, version 4.4.2.
 
     """
 
     def __init__(self):
         self.root = etree.fromstring(
             b"""<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch xmlns="http://www.crossref.org/schema/4.4.1"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.1"
-           xsi:schemaLocation="http://www.crossref.org/schema/4.4.1  http://data.crossref.org/schemas/crossref4.4.1.xsd">
+<doi_batch xmlns="http://www.crossref.org/schema/4.4.2"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.2"
+           xsi:schemaLocation="http://www.crossref.org/schema/4.4.2  http://data.crossref.org/schemas/crossref4.4.2.xsd">
     <body></body>
 </doi_batch>"""
         )
@@ -133,6 +133,7 @@ class CrossrefXML:
         -------
         lxml.etree
         """
+        etree.indent(self.root, space="    ")
         return self.root
 
 
@@ -185,7 +186,7 @@ class Depositor:
         doi_batch_id,
         timestamp,
         depositor_name="Iowa State University. Library. Metadata Services Department",
-        email_address="metadata@iastate.edu",
+        email_address="wteal@iastate.edu",
         registrant="Iowa State University. Library",
     ):
         self.doi_batch_id = doi_batch_id
@@ -210,6 +211,8 @@ class Depositor:
             ),
             E.registrant(self.registrant),
         )
+
+        etree.indent(head, space="    ")
 
         return head
 
@@ -271,7 +274,7 @@ class BaseMetadata:
 
                 contributors.append(c_xml)
 
-                return contributors
+            return contributors
         else:
             return None
 
@@ -339,13 +342,14 @@ class BaseMetadata:
 
 class AggregateMetadata(BaseMetadata):
     """Foundation of aggregating parent objects such as conference
-    proceedings, books with subsections needing their own DOIs and journal
-    issues.
+    proceedings, books with subsections needing their own DOIs, journals,
+    and journal issues.
     """
 
     def __init__(
         self,
         *,
+        children=[],
         conference_acronym="",
         conference_end_date={"year": "1400", "month": "01", "day": "01"},
         conference_location="",
@@ -359,6 +363,8 @@ class AggregateMetadata(BaseMetadata):
         doi="",
         edition_number=0,
         isbn="",
+        issn="",
+        issue="",
         kind="",
         language="en",
         media_type="",
@@ -368,7 +374,9 @@ class AggregateMetadata(BaseMetadata):
         publisher_place="",
         resource="",
         title="",
+        volume="",
     ):
+        self.children = children
         self.conference_acronym = conference_acronym
         self.conference_end_date = conference_end_date
         self.conference_location = conference_location
@@ -382,6 +390,8 @@ class AggregateMetadata(BaseMetadata):
         self.doi = doi
         self.edition_number = edition_number
         self.isbn = isbn
+        self.issn = issn
+        self.issue = issue
         self.kind = kind
         self.language = language
         self.media_type = media_type
@@ -391,6 +401,7 @@ class AggregateMetadata(BaseMetadata):
         self.publisher_place = publisher_place
         self.resource = resource
         self.title = title
+        self.volume = volume
 
     def _xml_conference_date(self):
         """Returns conference start and end date XML as lxml.etree.
@@ -435,6 +446,31 @@ class AggregateMetadata(BaseMetadata):
 
         return event_md
 
+    def _xml_journal_metadata(self):
+        root = E.journal()
+        journal_md = E.journal_metadata(
+            E.full_title(self.title), language=self.language
+        )
+
+        if self.issn:
+            journal_md.append(E.issn(self.issn, media_type=self.media_type))
+
+        root.append(journal_md)
+
+        for child in self.children:
+            root.append(child.to_xml())
+
+        return root
+
+    def _xml_journal_issue_metadata(self):
+        issue_md = E.journal_issue(
+            E.publication_date(E.year(self.date["year"]), media_type=self.media_type),
+            E.journal_volume(E.volume(self.volume)),
+            E.issue(self.issue),
+        )
+
+        return issue_md
+
     def _xml_proceedings_metadata(self):
         """Returns proceedings metadata XML as lxml.etree.
 
@@ -472,6 +508,14 @@ class AggregateMetadata(BaseMetadata):
 
             root.append(self._xml_event_metadata())
             root.append(self._xml_proceedings_metadata())
+        elif self.kind == "journal":
+            root = self._xml_journal_metadata()
+        elif self.kind == "journal_issue":
+            root = self._xml_journal_issue_metadata()
+        elif self.kind == "journal_article":
+            root = self._xml_journal_issue_metadata()
+
+        etree.indent(root, space="    ")
 
         return root
 
@@ -493,6 +537,7 @@ class ItemMetadata(BaseMetadata):
         component_list=[],
         contributors=[],
         date={"year": "1400", "month": "01", "day": "01"},
+        degree="",
         doi="",
         edition_number=0,
         kind="",
@@ -503,10 +548,12 @@ class ItemMetadata(BaseMetadata):
         language="en",
         media_type="",
         pages=[],
+        person_name,
         publication_type="full_text",
         publisher_name="",
         publisher_place="",
         resource="",
+        similarity_check_url="",
         title="",
     ):
         self.abstract = abstract
@@ -514,6 +561,7 @@ class ItemMetadata(BaseMetadata):
         self.component_list = component_list
         self.contributors = contributors
         self.date = date
+        self.degree = degree
         self.doi = doi
         self.edition_number = edition_number
         self.institution_name = institution_name
@@ -524,11 +572,13 @@ class ItemMetadata(BaseMetadata):
         self.language = language
         self.media_type = media_type
         self.pages = pages
+        self.person_name = person_name
         self.publication_type = publication_type
         self.publisher_name = publisher_name
         self.publisher_place = publisher_place
         self.resource = resource
-        self.timestamp = datetime.datetime.now().isoformat()
+        self.similarity_check_url = similarity_check_url
+        self.timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         self.title = title
 
     def _xml_citation_list(self):
@@ -553,6 +603,20 @@ class ItemMetadata(BaseMetadata):
 
         return root
 
+    def _xml_disseration(self):
+        root = E.dissertation(publication_type=self.publication_type, language="en")
+        root.append(self._xml_person_name())
+        root.append(self._xml_title())
+        root.append(
+            E.approval_date(E.year(self.date["year"]), media_type=self.media_type)
+        )
+        root.append(self._xml_institution())
+        root.append(E.degree(self.degree))
+        if self.doi:
+            root.append(self._xml_doi_data())
+
+        return root
+
     def _xml_institution(self):
         """Returns institution XML as lxml.etree.
 
@@ -565,16 +629,44 @@ class ItemMetadata(BaseMetadata):
         if self.institution_acronym:
             institution.append(E.institution_acronym(self.institution_acronym))
 
-        institution.append(E.institution_place(self.institution_place))
+        if self.institution_place:
+            institution.append(E.institution_place(self.institution_place))
 
         if self.institution_department:
             institution.append(E.institution_department(self.institution_department))
 
         return institution
 
+    def _xml_journal_article(self):
+        root = E.journal_article(publication_type=self.publication_type)
+        root.append(self._xml_title())
+
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root.append(contributors)
+
+        root.append(self._xml_publication_date())
+        if self.pages != []:
+            root.append(self._xml_pages())
+        root.append(self._xml_doi_data())
+
+        return root
+
     def _xml_pages(self):
         pages = E.pages(E.first_page(self.pages[0]), E.last_page(self.pages[1]))
         return pages
+
+    def _xml_person_name(self):
+        root = E.person_name(
+            E.given_name(self.person_name["given_name"]),
+            E.surname(self.person_name["surname"]),
+            contributor_role="author",
+            sequence="first",
+        )
+        if self.person_name["suffix"]:
+            root.append(E.suffix(self.person_name["suffix"]))
+
+        return root
 
     def _xml_report(self):
         root = etree.fromstring(
@@ -593,10 +685,6 @@ class ItemMetadata(BaseMetadata):
         root[0].append(self._xml_doi_data())
 
         return root
-
-
-
-
 
     def from_crossref_dict(self, crossref_dict):
         contributors = crossref_dict.get("author", [])
@@ -623,7 +711,11 @@ class ItemMetadata(BaseMetadata):
             media_type = ""
 
         if date_list:
-            publication_date["year"], publication_date["month"], publication_date["day"] = date_list
+            (
+                publication_date["year"],
+                publication_date["month"],
+                publication_date["day"],
+            ) = date_list
 
         institution = crossref_dict.get("institution", dict())
 
@@ -651,10 +743,6 @@ class ItemMetadata(BaseMetadata):
         self.publisher_place = crossref_dict.get("publisher-location", "")
         self.timestamp = datetime.datetime.now().isoformat()
         self.title = crossref_dict.get("title", [""])[0]
-
-
-
-
 
     def generate_doi(self, prefix, collection, seq_num):
         """Generate the DOI for the item.
@@ -702,5 +790,9 @@ class ItemMetadata(BaseMetadata):
             root = self._xml_report()
         elif self.kind == "proceedings":
             root = self._xml_conference_paper()
-
+        elif self.kind == "journal_article":
+            root = self._xml_journal_article()
+        elif self.kind == "dissertation":
+            root = self._xml_disseration()
+        etree.indent(root, space="    ")
         return root
