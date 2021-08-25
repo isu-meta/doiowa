@@ -3,12 +3,6 @@
 A library to manage the registration and maintenance of DOIs at the Iowa
 State University Library.
 
-**Please note:** This library is currently undergoing a significant rewrite
-and reorganization with the goal of making it more flexible, maintainable,
-and portable. During this process this README file and the documentation
-it links to may fall out of sync with actual usage. Efforts will be made to
-keep this document as current as possible.
-
 ## Requirements
 
 Requires [Python](https://www.python.org/) version 3.7 or higher.
@@ -17,6 +11,7 @@ Requires [Python](https://www.python.org/) version 3.7 or higher.
 
 - [crossrefapi](https://github.com/fabiobatalha/crossrefapi)
 - [lxml](https://lxml.de/)
+- [PyPDF2](https://mstamy2.github.io/PyPDF2/)
 - [requests](https://2.python-requests.org/en/master/)
 
 ## Getting Started
@@ -51,11 +46,6 @@ C:\your\dir\doiowa> pip install -r requirements.txt
 ```
 
 ## Basic Usage
-
-_**Note:** This section covers the workflow used for working with
-collections other than Digital Commons collections. To work with
-Digital Commons collections, see the section below **Set Up and Workflow
-for Creating DOIs for Digital Commons Collections**_
 
 To register one or more DOIs, use the `register` command followed by the
 XML file containing the DOIs and associated metadata, your Crossref username
