@@ -548,7 +548,7 @@ class ItemMetadata(BaseMetadata):
         language="en",
         media_type="",
         pages=[],
-        person_name,
+        person_name="",
         publication_type="full_text",
         publisher_name="",
         publisher_place="",
