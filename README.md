@@ -11,7 +11,6 @@ Requires [Python](https://www.python.org/) version 3.7 or higher.
 
 - [crossrefapi](https://github.com/fabiobatalha/crossrefapi)
 - [lxml](https://lxml.de/)
-- [PyPDF2](https://mstamy2.github.io/PyPDF2/)
 - [requests](https://2.python-requests.org/en/master/)
 
 ## Getting Started
