@@ -22,7 +22,7 @@ def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
         Metadata objects to add DOIs to.
     start : int
         The sequence number to start at. Optional. Default is 0.
-    
+
     Returns
     -------
     None
@@ -62,6 +62,14 @@ def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.2"):
     doi_batch_id = tree.xpath(doi_batch_id_xpath, namespaces=ns)[0]
 
     return doi_batch_id
+
+
+def name_to_dict(name):
+    return {
+        "given_name": " ".join([name.first, name.middle]).strip(),
+        "surname": name.last,
+        "suffix": name.suffix
+    }
 
 
 class CrossrefXML:
@@ -143,7 +151,7 @@ class Depositor:
     This object contains the metadata for the Crossref metadata
     deposit schema's depositor element and associated children, and
     a to_xml method to return an lxml.etree of the depositor metadata
-    that can be inserted into a doiowa.md.CrossrefXML object to 
+    that can be inserted into a doiowa.md.CrossrefXML object to
     build a valid Crossref XML document.
 
     Parameters
@@ -160,7 +168,7 @@ class Depositor:
         Defaults to 'Iowa State University. Library. Metadata
         Services Department'.
     email_address : str
-        The email address of the depositor. Defaults to 
+        The email address of the depositor. Defaults to
         'metadata@iastate.edu'.
     registrant : str
         The name of the organization that owns the information
@@ -186,7 +194,7 @@ class Depositor:
         doi_batch_id,
         timestamp,
         depositor_name="Iowa State University. Library. Metadata Services Department",
-        email_address="wteal@iastate.edu",
+        email_address="metadata@iastate.edu",
         registrant="Iowa State University. Library",
     ):
         self.doi_batch_id = doi_batch_id
@@ -244,6 +252,29 @@ class BaseMetadata:
         self.resource = resource
         self.title = title
 
+    def _xml_loop_through_names(self, names, role, root,):
+        if len(root.items()) == 0:
+            seq = "first"
+        else:
+            seq = "additional"
+
+        for c in names:
+            try:
+                c_xml = E.person_name(
+                    E.given_name(c["given_name"]),
+                    E.surname(c["surname"]),
+                    sequence=seq,
+                    contributor_role=role,
+                )
+            except KeyError:
+                c_xml = E.organization(
+                    c["organization"], sequence=seq, contributor_role=role
+                )
+                root.append(c_xml)
+
+            return root
+
+
     def _xml_contributors(self):
         """Returns contributor XML as lxml.etree.
 
@@ -251,29 +282,16 @@ class BaseMetadata:
         -------
         lxml.etree
         """
-        contributors = E.contributors()
+        if self.contributors or self.authors or self.reviewers:
+            contributors = E.contributors()
+            if self.contributors:
+                contributors = self.loop_through_names(self.contributors, "authors", contributors)
 
-        if self.contributors:
-            for i, c in enumerate(self.contributors):
-                if i == 0:
-                    seq = "first"
-                else:
-                    seq = "additional"
+            if self.authors:
+                contributors = self.loop_through_names(self.authors, "authors", contributors)
 
-                try:
-                    c_xml = E.person_name(
-                        E.given_name(c["given_name"]),
-                        E.surname(c["surname"]),
-                        sequence=seq,
-                        contributor_role="author",
-                    )
-                except KeyError:
-                    c_xml = E.organization(
-                        c["organization"], sequence=seq, contributor_role="author"
-                    )
-
-                contributors.append(c_xml)
-
+            if self.reviewers:
+                contributors = self.loop_through_names(self.reviewers, "reviewers", contributors)
             return contributors
         else:
             return None
@@ -405,7 +423,7 @@ class AggregateMetadata(BaseMetadata):
 
     def _xml_conference_date(self):
         """Returns conference start and end date XML as lxml.etree.
-        
+
         Returns
         -------
         lxml.etree
@@ -525,14 +543,14 @@ class ItemMetadata(BaseMetadata):
 
     This class collects all the metadata needed to create a DOI for an
     object and produces the XML for the digital object. Use class for
-    monographs and other non-aggregate publications such as reports, as well
-    as 
+    monographs and other non-aggregate publications such as reports.
     """
 
     def __init__(
         self,
         *,
         abstract="",
+        authors=[],
         citation_list=[],
         component_list=[],
         contributors=[],
@@ -553,10 +571,12 @@ class ItemMetadata(BaseMetadata):
         publisher_name="",
         publisher_place="",
         resource="",
+        reviewers=[],
         similarity_check_url="",
         title="",
     ):
         self.abstract = abstract
+        self.authors = authors
         self.citation_list = citation_list
         self.component_list = component_list
         self.contributors = contributors
@@ -577,9 +597,13 @@ class ItemMetadata(BaseMetadata):
         self.publisher_name = publisher_name
         self.publisher_place = publisher_place
         self.resource = resource
+        self.reviewrs = reviewers
         self.similarity_check_url = similarity_check_url
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         self.title = title
+
+    def _xml_abstract(self):
+        return E.abstract(self.abstract)
 
     def _xml_citation_list(self):
         pass
@@ -607,6 +631,7 @@ class ItemMetadata(BaseMetadata):
         root = E.dissertation(publication_type=self.publication_type, language="en")
         root.append(self._xml_person_name())
         root.append(self._xml_title())
+        root.append(self._xml_abstract())
         root.append(
             E.approval_date(E.year(self.date["year"]), media_type=self.media_type)
         )
