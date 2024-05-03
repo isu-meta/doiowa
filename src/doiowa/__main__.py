@@ -23,7 +23,7 @@ def main():
     collection and the ``--sources`` flag followed by the source file(s) or
     URL(s) to harvest metadata from::
 
-        python doiowa.py generate cpn https://... https://...
+        doiowa generate cpn https://... https://...
 
     Current supported collections are ``cpn``. You may optionally specify the
     name of the XML file doiowa will generate using the ``--out`` flag followed
@@ -34,22 +34,22 @@ def main():
     XML file containing the DOIs and associated metadata, your Crossref username
     and password::
 
-        python doiowa.py register new_dois.xml username password
+        doiowa register new_dois.xml username password
 
     To check on the status of a submission, use the ``check`` command followed
     by either the XML file submitted or the DOI batch ID of the submission and
     your Crossref username and password::
 
-        python doiowa.py check new_dois.xml username password
+        doiowa check new_dois.xml username password
 
     or::
 
-        python doiowa.py check new-dois-0001 username password
+        doiowa check new-dois-0001 username password
 
     To get the current metadata for a DOI use the ``query`` command followed
     by the DOI::
 
-        python doiowa.py query 10.99999/fake-doi-abc-1
+        doiowa query 10.99999/fake-doi-abc-1
     """
 
     parser = argparse.ArgumentParser()
@@ -85,7 +85,8 @@ def main():
         "--collection",
         help="""An acronym for the institutional repository collection an XML file
     is being generated for. Use 'td' for Theses and Dissertations and 'cc' for Creative
-    Components. This argument is required for 'generate dr-csv' and is unused otherwise."""
+    Components. This argument is required for 'generate dr-csv' and 'generate dr-web'.
+    It is unused otherwise."""
     )
     parser.add_argument(
         "--genre",
@@ -113,8 +114,11 @@ def main():
             else:
                 print("Sorry, the '--collection' argument is required for generating XML for the digital repository.")
         elif args.target == "dr-web":
-            xml = dr.generate_xml(args.sources, args.collection, timestamp, "uri", args.genre)
-            etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
+            if args.collection:
+                xml = dr.generate_xml(args.sources, args.collection, timestamp, "uri", args.genre)
+                etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
+            else:
+                print("Sorry, the '--collection' argument is required for generating XML for the digital repository.")
         else:
             print(f"Sorry, doiowa does not currently support generating XML from{args.target}!")
     elif args.command == "query":
