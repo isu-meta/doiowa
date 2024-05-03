@@ -56,7 +56,7 @@ def main():
     parser.add_argument("command", help="Accepted arguments: generate, register, check")
     parser.add_argument(
         "target",
-        help="""Accepted arguments after 'generate': cpn, dr-csv. 'generate' also
+        help="""Accepted arguments after 'generate': cpn, dr-csv, dr-web. 'generate' also
     requires the '--sources' argument.
     Accepted arguments after 'register': An XML file path.
     Accepted arguments after 'check': An XML file name or a DOI batch ID.
@@ -87,6 +87,14 @@ def main():
     is being generated for. Use 'td' for Theses and Dissertations and 'cc' for Creative
     Components. This argument is required for 'generate dr-csv' and is unused otherwise."""
     )
+    parser.add_argument(
+        "--genre",
+        help="""The genre to generate. This argument is currently only used with the
+        `generate dr-web` arguments to specify whether to create thesis or report xml.
+        Accepted options are 'dissertation' or 'report'. `generate dr-csv` defaults to
+        'dissertation', although this might change in the future. `generate cpn` defaults
+        to 'report'. This behavior is unlikely to change."""
+    )
 
     args = parser.parse_args()
 
@@ -104,6 +112,9 @@ def main():
                 etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
             else:
                 print("Sorry, the '--collection' argument is required for generating XML for the digital repository.")
+        elif args.target == "dr-web":
+            xml = dr.generate_xml(args.sources, args.collection, timestamp, "uri", args.genre)
+            etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
         else:
             print(f"Sorry, doiowa does not currently support generating XML from{args.target}!")
     elif args.command == "query":

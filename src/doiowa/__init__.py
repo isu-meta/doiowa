@@ -1,8 +1,8 @@
 """A library for automating the DOI creation workflows."""
 
 __name__ = "doiowa"
-__version__ = "2024.4.2"
+__version__ = "2024.3.22"
 __author__ = "Nausicaa Rose"
 __email__ = "nausicaa@iastate.edu"
 
-PREFIX = ""
+PREFIX = "10.31274"

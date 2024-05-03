@@ -253,7 +253,7 @@ class BaseMetadata:
         self.title = title
 
     def _xml_loop_through_names(self, names, role, root,):
-        if len(root.items()) == 0:
+        if len(root.getchildren()) == 0:
             seq = "first"
         else:
             seq = "additional"
@@ -270,9 +270,10 @@ class BaseMetadata:
                 c_xml = E.organization(
                     c["organization"], sequence=seq, contributor_role=role
                 )
-                root.append(c_xml)
+            root.append(c_xml)
+            seq = "additional"
 
-            return root
+        return root
 
 
     def _xml_contributors(self):
@@ -285,13 +286,13 @@ class BaseMetadata:
         if self.contributors or self.authors or self.reviewers:
             contributors = E.contributors()
             if self.contributors:
-                contributors = self.loop_through_names(self.contributors, "authors", contributors)
+                contributors = self._xml_loop_through_names(self.contributors, "author", contributors)
 
             if self.authors:
-                contributors = self.loop_through_names(self.authors, "authors", contributors)
+                contributors = self._xml_loop_through_names(self.authors, "author", contributors)
 
             if self.reviewers:
-                contributors = self.loop_through_names(self.reviewers, "reviewers", contributors)
+                contributors = self._xml_loop_through_names(self.reviewers, "reviewer", contributors)
             return contributors
         else:
             return None
@@ -597,13 +598,10 @@ class ItemMetadata(BaseMetadata):
         self.publisher_name = publisher_name
         self.publisher_place = publisher_place
         self.resource = resource
-        self.reviewrs = reviewers
+        self.reviewers = reviewers
         self.similarity_check_url = similarity_check_url
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         self.title = title
-
-    def _xml_abstract(self):
-        return E.abstract(self.abstract)
 
     def _xml_citation_list(self):
         pass
@@ -631,7 +629,6 @@ class ItemMetadata(BaseMetadata):
         root = E.dissertation(publication_type=self.publication_type, language="en")
         root.append(self._xml_person_name())
         root.append(self._xml_title())
-        root.append(self._xml_abstract())
         root.append(
             E.approval_date(E.year(self.date["year"]), media_type=self.media_type)
         )
@@ -706,7 +703,8 @@ class ItemMetadata(BaseMetadata):
         root[0].append(self._xml_edition_number())
         root[0].append(self._xml_publication_date())
         root[0].append(self._xml_publisher())
-        root[0].append(self._xml_institution())
+        if self.institution_name:
+            root[0].append(self._xml_institution())
         root[0].append(self._xml_doi_data())
 
         return root
