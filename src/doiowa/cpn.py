@@ -28,7 +28,7 @@ def parse_names(names):
 
 
 def get_authors(tree):
-    authors_xpath = "//h3[text() = 'Authors']/following-sibling::p[1]/strong/text()"
+    authors_xpath = "//h3[text() = 'Authors' or strong/text() = 'Authors']/following-sibling::p[1]/strong/text()"
     authors = tree.xpath(authors_xpath)
     parsed_names = parse_names(authors)
 
@@ -36,16 +36,44 @@ def get_authors(tree):
 
 
 def get_reviewers(tree):
-    reviewers_h3_xpath = "//h3[text() = 'Reviewers']/following-sibling::p[1]/strong/text()"
-    reviewers_p_xpath = "//p[strong/text() = 'Reviewers']/following-sibling::p[1]/strong/text()"
-    reviewers = tree.xpath(reviewers_h3_xpath)
+    # Sometimes the reviewers heading is an <h3>, sometimes it's a <p>, so catch both
+    reviewers_xpath = "//*[text() = 'Reviewers']/following-sibling::p[1]/strong/text()"
+    # Sometimes reviewer names aren't wrapped in <strong> tags and are in invdividual
+    # <p> tags instead of all within the same paragraph
+    reviewers_no_strong_xpath = "//*[text() = 'Reviewers']/following-sibling::p/text()"
+    # Sometimes some reviewers are listed under an "Additional Reviewers heading"
+    additional_reviewers = "//*[text() = 'Additional Reviewers']/following-sibling::p[1]/strong/text()"
+    reviewers = tree.xpath(reviewers_xpath)
+
+    # If there are no reviewers found by the reviewers_xpath, it's possible
+    # their names aren't wrapped in <strong> tags, so we can try searching
+    # without that tag, but it will require more parsing.
     if len(reviewers) == 0:
-        reviewers = tree.xpath(reviewers_p_xpath)
+        # without the <strong> tag wrapping the reviewer's name, we'd end up
+        # feeding parse_names() an array of strings like "First M. Name,
+        # University of Whatever." This is no good, so split the name strings
+        # on the comma and take only the personal name part
+        reviewers = [
+            r.split(",")[0]
+            for r
+            in tree.xpath(reviewers_no_strong_xpath)
+            # Try to filter out any non-name paragraphs by hoping
+            # they have 0 or 2 or more commas to distinguish them
+            # from the Name, Employer form
+            if len(r.split(",")) == 2
+        ]
+
+    reviewers.extend(tree.xpath(additional_reviewers))
 
     return parse_names(reviewers)
 
 
 def get_metadata(tree, uri):
+    # test function against:
+    # * https://cropprotectionnetwork.org/publications/adjuvants-with-herbicides-when-and-why-they-are-needed
+    # * https://cropprotectionnetwork.org/publications/an-overview-of-phytophthora-root-and-stem-rot
+    # * need to refind the page that had "Authors" in a <p> tag
+    # to capture the variations in how authors and reviewers are listed
     md = {}
     md["title"] = get_title(tree)
     md["date"] = get_publication_date(tree)
