@@ -31,7 +31,7 @@ def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
         md.generate_doi(prefix, collection, n)
 
 
-def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.2"):
+def get_doi_batch_id_from_xml(xml_file, schema_version="5.3.1"):
     """Get the DOI batch ID from an XML file
 
     Extract the DOI batch ID from the provided file. The schema_version
