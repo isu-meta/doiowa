@@ -9,6 +9,7 @@ import requests
 from doiowa import md, PREFIX
 
 def get_page(url):
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0"}
     if not (url.endswith("full") or url.endswith("full/")):
         # Have to make sure the base URL ends with a slash or urljoin
         # will absolutely mangle the URL due to an amazingly terrible
@@ -16,13 +17,13 @@ def get_page(url):
         # base URL already ended with a slash.
         url = urljoin(f"{url}/", "full")
     print(url)
-    return requests.get(url).text
+    return requests.get(url, headers=headers).text
 
 
 def scrape_page(url):
     print(url)
     html = get_page(url)
-    #print(html)
+    print(html)
     m = {}
     tree = etree.HTML(html)
     abstract_xpath = "string(//td[text() = 'dc.description.abstract']/following-sibling::td[1]/text())"
