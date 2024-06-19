@@ -21,7 +21,7 @@ def print_response(r):
 
 def submit_xml(doi_batch_id, xml, prefix, username, password, use_test_server=False):
     """Register DOIs with Crossref.
-    
+
     Submit XML to the Crossref API to register DOIs.
 
     Parameters
