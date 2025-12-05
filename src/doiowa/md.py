@@ -1,4 +1,5 @@
 """Objects and functions for working with metadata in doiowa."""
+
 import datetime
 
 from lxml import etree
@@ -31,7 +32,7 @@ def add_dois_to_md_objects(prefix, collection, md_objects, start=0):
         md.generate_doi(prefix, collection, n)
 
 
-def get_doi_batch_id_from_xml(xml_file, schema_version="5.3.1"):
+def get_doi_batch_id_from_xml(xml_file, schema_version="4.4.2"):
     """Get the DOI batch ID from an XML file
 
     Extract the DOI batch ID from the provided file. The schema_version
@@ -68,7 +69,7 @@ def name_to_dict(name):
     return {
         "given_name": " ".join([name.first, name.middle]).strip(),
         "surname": name.last,
-        "suffix": name.suffix
+        "suffix": name.suffix,
     }
 
 
@@ -90,9 +91,9 @@ class CrossrefXML:
     def __init__(self):
         self.root = etree.fromstring(
             b"""<?xml version="1.0" encoding="UTF-8"?>
-<doi_batch xmlns="http://www.crossref.org/schema/4.4.2"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4.4.2"
-           xsi:schemaLocation="http://www.crossref.org/schema/4.4.2  http://data.crossref.org/schemas/crossref4.4.2.xsd">
+<doi_batch xmlns="http://www.crossref.org/schema/5.4.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="5.4.0"
+           xsi:schemaLocation="http://www.crossref.org/schema/5.4.0  http://data.crossref.org/schemas/crossref5.4.0.xsd">
     <body></body>
 </doi_batch>"""
         )
@@ -252,7 +253,12 @@ class BaseMetadata:
         self.resource = resource
         self.title = title
 
-    def _xml_loop_through_names(self, names, role, root,):
+    def _xml_loop_through_names(
+        self,
+        names,
+        role,
+        root,
+    ):
         if len(root.getchildren()) == 0:
             seq = "first"
         else:
@@ -275,7 +281,6 @@ class BaseMetadata:
 
         return root
 
-
     def _xml_contributors(self):
         """Returns contributor XML as lxml.etree.
 
@@ -286,13 +291,19 @@ class BaseMetadata:
         if self.contributors or self.authors or self.reviewers:
             contributors = E.contributors()
             if self.contributors:
-                contributors = self._xml_loop_through_names(self.contributors, "author", contributors)
+                contributors = self._xml_loop_through_names(
+                    self.contributors, "author", contributors
+                )
 
             if self.authors:
-                contributors = self._xml_loop_through_names(self.authors, "author", contributors)
+                contributors = self._xml_loop_through_names(
+                    self.authors, "author", contributors
+                )
 
             if self.reviewers:
-                contributors = self._xml_loop_through_names(self.reviewers, "reviewer", contributors)
+                contributors = self._xml_loop_through_names(
+                    self.reviewers, "reviewer", contributors
+                )
             return contributors
         else:
             return None
@@ -625,8 +636,25 @@ class ItemMetadata(BaseMetadata):
 
         return root
 
-    def _xml_disseration(self):
-        root = E.dissertation(publication_type=self.publication_type, language="en")
+    def _xml_database(self):
+        root = E.database(E.database_metadata(language=self.language))
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root[0].append(self._xml_contributors())
+        root[0].append(self._xml_title())
+        date_element = E.database_date()
+        date_element.append(self._xml_publication_date)
+        root[0].append(date_element)
+        root[0].append(self._xml_institution())
+        root[0].append(self._xml_publisher())
+        root[0].append(self._xml_doi_data())
+
+        return root
+
+    def _xml_dissertation(self):
+        root = E.dissertation(
+            publication_type=self.publication_type, language=self.language
+        )
         root.append(self._xml_person_name())
         root.append(self._xml_title())
         root.append(
@@ -689,6 +717,28 @@ class ItemMetadata(BaseMetadata):
             root.append(E.suffix(self.person_name["suffix"]))
 
         return root
+
+    def _xml_posted_content(self):
+        root = E.posted_content(type="other")
+        contributors = self._xml_contributors()
+        if contributors is not None:
+            root.append(contributors)
+        root.append(self._xml_title())
+        root.append(self._xml_posted_date())
+        root.append(self._xml_institution())
+        root.append(self._xml_doi_data())
+
+        return root
+
+    def _xml_posted_date(self):
+        posted_date = E.posted_date(
+            E.month(self.date["month"]),
+            E.day(self.date["day"]),
+            E.year(self.date["year"]),
+            media_type=self.media_type,
+        )
+
+        return posted_date
 
     def _xml_report(self):
         root = etree.fromstring(
@@ -758,7 +808,7 @@ class ItemMetadata(BaseMetadata):
         self.institution_acronym = institution.get("acronym", [""])[0]
         self.institution_department = institution.get("department", [""])[0]
         self.kind = crossref_dict.get("type", "")
-        self.language = crossref_dict.get("language", "en")
+        self.language = crossref_dict.get("language", "eng")
         self.media_type = media_type
         self.pages = crossref_dict.get("page", "")
         self.publication_type = "full_text"
@@ -808,14 +858,17 @@ class ItemMetadata(BaseMetadata):
         -------
         lxml.etree
         """
-
-        if self.kind == "report":
-            root = self._xml_report()
-        elif self.kind == "proceedings":
-            root = self._xml_conference_paper()
-        elif self.kind == "journal_article":
-            root = self._xml_journal_article()
-        elif self.kind == "dissertation":
-            root = self._xml_disseration()
-        etree.indent(root, space="    ")
+        match self.kind:
+            case "dissertation":
+                root = self._xml_dissertation()
+            case "report":
+                root = self._xml_report()
+            case "database":
+                root = self._xml_database()
+            case "posted_content":
+                root = self._xml_posted_content()
+            case "proceedings":
+                root = self._xml_conference_paper()
+            case "journal_article":
+                root = self._xml_journal_article()
         return root
