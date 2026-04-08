@@ -643,7 +643,7 @@ class ItemMetadata(BaseMetadata):
             root[0].append(self._xml_contributors())
         root[0].append(self._xml_title())
         date_element = E.database_date()
-        date_element.append(self._xml_publication_date)
+        date_element.append(self._xml_publication_date())
         root[0].append(date_element)
         root[0].append(self._xml_institution())
         root[0].append(self._xml_publisher())
