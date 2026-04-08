@@ -1,4 +1,5 @@
 """Functions for working with the Crossref API."""
+
 from crossref.restful import Depositor, Etiquette, Works
 
 from doiowa import __name__, __version__, __author__, __email__
