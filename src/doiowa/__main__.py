@@ -7,7 +7,9 @@ from doiowa.md import Depositor, get_doi_batch_id_from_xml
 from doiowa import cpn, crossref, dr, PREFIX
 
 
-def name_output_file(name="", timestamp=f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.xml"):
+def name_output_file(
+    name="", timestamp=f"{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.xml"
+):
     if name:
         out_xml_file = name
     else:
@@ -62,7 +64,9 @@ def main():
     Accepted arguments after 'check': An XML file name or a DOI batch ID.
     Accepted arguments after 'query': A DOI.""",
     )
-    parser.add_argument("credentials", nargs="*", help="Crossref username and password.")
+    parser.add_argument(
+        "credentials", nargs="*", help="Crossref username and password."
+    )
     parser.add_argument(
         "--out",
         help="""Specify the name of the XML file to create with `generate`.
@@ -86,15 +90,15 @@ def main():
         help="""An acronym for the institutional repository collection an XML file
     is being generated for. Use 'td' for Theses and Dissertations and 'cc' for Creative
     Components. This argument is required for 'generate dr-csv' and 'generate dr-web'.
-    It is unused otherwise."""
+    It is unused otherwise.""",
     )
     parser.add_argument(
         "--genre",
-        help="""The genre to generate. This argument is currently only used with the
-        `generate dr-web` arguments to specify whether to create thesis or report xml.
-        Accepted options are 'dissertation' or 'report'. `generate dr-csv` defaults to
-        'dissertation', although this might change in the future. `generate cpn` defaults
-        to 'report'. This behavior is unlikely to change."""
+        help="""The genre to generate. This argument is required with the `generate dr-web`
+        and `generate dr-csv` arguments to specify whether to create thesis or report XML.
+        Accepted options are 'dissertation' or 'report'. It is optional for `generate cpn`.
+        Accepted options are 'report', 'database', or 'posted_content'. The default is
+        'report'.""",
     )
 
     args = parser.parse_args()
@@ -102,25 +106,53 @@ def main():
     errors = []
 
     if args.command == "generate":
-        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         out_xml_file = name_output_file(args.out, timestamp)
-        if args.target == "cpn":
-            xml = cpn.generate_xml(args.sources, timestamp)
-            etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
-        elif args.target == "dr-csv":
-            if args.collection:
-                xml = dr.generate_xml(args.sources, args.collection, timestamp)
-                etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
-            else:
-                print("Sorry, the '--collection' argument is required for generating XML for the digital repository.")
-        elif args.target == "dr-web":
-            if args.collection:
-                xml = dr.generate_xml(args.sources, args.collection, timestamp, "uri", args.genre)
-                etree.ElementTree(xml.to_xml()).write(out_xml_file, encoding="utf-8", pretty_print=True)
-            else:
-                print("Sorry, the '--collection' argument is required for generating XML for the digital repository.")
-        else:
-            print(f"Sorry, doiowa does not currently support generating XML from{args.target}!")
+        match args.target:
+            case "cpn":
+                if args.genre is None:
+                    xml = cpn.generate_xml(args.sources, timestamp)
+                else:
+                    if args.genre not in {"report", "database", "posted_material"}:
+                        print(
+                            "Sorry, the only '--genre' arguments `generate cpn` supports are 'report' and 'posted_material"
+                        )
+                    else:
+                        xml = cpn.generate_xml(args.sources, timestamp, args.genre)
+                etree.ElementTree(xml.to_xml()).write(
+                    out_xml_file, encoding="utf-8", pretty_print=True
+                )
+            case "dr-csv" | "dr-web":
+                if args.genre is not None:
+                    if args.genre not in {"dissertation", "report"}:
+                        print(
+                            "Sorry, the only '--genre' arguments `generate dr-web` and `generate dr-csv` supports are 'dissertation' and 'report'."
+                        )
+                    else:
+                        if args.collection is None:
+                            print(
+                                "Sorry, the '--collection' argument is required for generating XML for the digital repository."
+                            )
+                        else:
+                            if args.target == "dr-csv":
+                                csv_or_uri = "csv"
+                            else:
+                                csv_or_uri = "uri"
+
+                            xml = dr.generate_xml(
+                                args.sources,
+                                args.collection,
+                                timestamp,
+                                "csv",
+                                args.genre,
+                            )
+                            etree.ElementTree(xml.to_xml()).write(
+                                out_xml_file, encoding="utf-8", pretty_print=True
+                            )
+            case _:
+                print(
+                    f"Sorry, doiowa does not currently support generating XML from{args.target}!"
+                )
     elif args.command == "query":
         md = crossref.get_metadata_by_doi(args.target)
         print(md)
@@ -156,6 +188,7 @@ def main():
     for error in errors:
         with open("error.txt", "a", encoding="utf-8") as fh:
             fh.write(f"{datetime.date.today().isoformat(): {error}\n}")
+
 
 if __name__ == "__main__":
     main()
