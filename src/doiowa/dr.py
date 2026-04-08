@@ -9,7 +9,6 @@ import requests
 from doiowa import md, PREFIX
 
 def get_page(url):
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0"}
     if not (url.endswith("full") or url.endswith("full/")):
         # Have to make sure the base URL ends with a slash or urljoin
         # will absolutely mangle the URL due to an amazingly terrible
@@ -17,13 +16,13 @@ def get_page(url):
         # base URL already ended with a slash.
         url = urljoin(f"{url}/", "full")
     print(url)
-    return requests.get(url, headers=headers).text
+    return requests.get(url).text
 
 
 def scrape_page(url):
     print(url)
     html = get_page(url)
-    print(html)
+    #print(html)
     m = {}
     tree = etree.HTML(html)
     abstract_xpath = "string(//td[text() = 'dc.description.abstract']/following-sibling::td[1]/text())"
@@ -53,8 +52,8 @@ def load_csv(csv_path):
         return [row for row in reader]
 
 
-def get_author(m):
-    name = HumanName(m["dc.contributor.author"])
+def get_author(n):
+    name = HumanName(n.split("::")[0])
     return md.name_to_dict(name)
 
 
@@ -98,15 +97,21 @@ def generate_xml(sources, collection, timestamp, csv_or_url="csv", genre="disser
             print(f"Genre is {genre}")
             if genre == "dissertation":
                 item.abstract = m["dc.description.abstract"]
-                item.degree = m["thesis.degree.name[en_US]"]
-                item.institution_department = m["dc.contributor.department[en_US]"]
+                try:
+                    item.degree = m["thesis.degree.name[en_US]"]
+                except KeyError:
+                    item.degree = m["thesis.degree.name"]
+                try:
+                    item.institution_department = m["dc.contributor.department[en_US]"]
+                except KeyError:
+                    item.institution_department = m["dc.contributor.department"]
                 item.institution_name = "Iowa State University"
                 item.institution_place = "Ames (Iowa)"
                 item.kind = "dissertation"
                 item.media_type = "print" if int(date["year"]) < 2006 else "online"
-                item.person_name = get_author(m)
+                item.person_name = get_author(m["dc.contributor.author"])
             elif genre == "report":
-                item.contributors = [get_author(m)]
+                item.contributors = [get_author(a) for a in m["dc.contributor.author"].split("||")]
                 item.kind = "report"
                 item.media_type = "online"
 
